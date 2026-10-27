@@ -23,6 +23,7 @@ router.get('/', getConversations);
 router.post('/', validateMiddleware(conversationCreateSchema), getOrCreateConversation);
 router.get('/unread-count', getUnreadCount);
 router.delete('/:id/messages', clearConversation);
+router.get('/:id/messages', getMessages);
 router.post('/:id/messages', validateMiddleware(messageSendSchema), sendMessage);
 router.delete('/:id/messages/:messageId', deleteMessage);
 

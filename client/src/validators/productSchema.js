@@ -21,6 +21,16 @@ export const CATEGORIES = [
   'beauty',
   'toys',
   'food',
+  'furniture',
+  'automotive',
+  'vehicles',
+  'jewelry',
+  'pet',
+  'garden',
+  'music',
+  'office',
+  'health',
+  'baby',
   'other',
 ];
 

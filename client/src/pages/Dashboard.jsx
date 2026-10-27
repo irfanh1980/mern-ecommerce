@@ -105,6 +105,7 @@ export default function Dashboard() {
   const isSeller = user?.role === 'Seller' || user?.role === 'Both';
 
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -155,7 +156,12 @@ export default function Dashboard() {
       const { data } = await api.get('/api/products', {
         params: { limit: 100 },
       });
-      setProducts(data.data);
+      const all = data.data || [];
+      setAllProducts(all);
+      const myProducts = all.filter(
+        (p) => p.seller?._id === user?._id || p.seller === user?._id
+      );
+      setProducts(myProducts);
     } catch (err) {
       setAlert(err.response?.data?.message || 'Failed to load products');
     } finally {
@@ -371,7 +377,7 @@ export default function Dashboard() {
     </div>
   );
 
-  const availableProducts = products.filter((p) => p.seller?._id !== user?._id);
+  const availableProducts = allProducts.filter((p) => p.seller?._id !== user?._id && p.seller !== user?._id);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -542,7 +548,7 @@ export default function Dashboard() {
                               <img
                                 src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
                                 alt={p.title}
-                                className="w-full h-full object-cover"
+                                 className="w-full h-full object-contain"
                               />
                             ) : (
                               <div className="flex h-full items-center justify-center rounded bg-gray-100 text-xs text-gray-400">
@@ -624,7 +630,7 @@ export default function Dashboard() {
                                   <img
                                     src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
                                     alt={p.title}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-contain"
                                   />
                                 ) : (
                                   <div className="flex h-full items-center justify-center rounded bg-gray-100 text-xs text-gray-400">

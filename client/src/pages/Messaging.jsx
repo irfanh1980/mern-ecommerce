@@ -133,10 +133,11 @@ const fetchConversations = async () => {
     if (!activeConversation) return;
     setSending(true);
     try {
-      await api.post(`/api/conversations/${activeConversation._id}/messages`, { content });
-      socketRef.current?.emit('sendMessage', {
-        conversationId: activeConversation._id,
-        content,
+      const { data } = await api.post(`/api/conversations/${activeConversation._id}/messages`, { content });
+      setMessages((prev) => {
+        const exists = prev.some((msg) => msg._id === data.data._id);
+        if (exists) return prev;
+        return [...prev, data.data];
       });
     } catch (err) {
       console.error('Failed to send message', err);

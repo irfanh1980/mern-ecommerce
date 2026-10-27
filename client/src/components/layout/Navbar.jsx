@@ -46,7 +46,7 @@ export default function Navbar() {
             {user ? (
             <>
             {user && location.pathname !== '/' && (
-              <span className="text-sm text-gray-300">Logged in as: {user.role}</span>
+              <span className="text-sm text-gray-300">Logged in as: {user.role === 'Both' ? 'Seller/Buyer' : user.role}</span>
             )}
                <Link to="/dashboard" className={`hover:text-gray-300 ${location.pathname === '/dashboard' ? 'text-blue-400' : ''}`}>Dashboard</Link>
               <Link

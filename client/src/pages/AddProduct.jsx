@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,6 +8,7 @@ import ImageUpload from '../components/ui/ImageUpload.jsx';
 
 export default function AddProduct() {
   const { api } = useAuth();
+  const navigate = useNavigate();
   const [message, setMessage] = useState('');
   const [alert, setAlert] = useState('');
   const [saving, setSaving] = useState(false);
@@ -58,6 +60,7 @@ export default function AddProduct() {
       });
 
       setMessage('Product created successfully');
+      navigate('/dashboard');
       reset({
         title: '',
         description: '',
