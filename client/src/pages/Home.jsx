@@ -16,6 +16,7 @@ export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -47,7 +48,6 @@ export default function Home() {
 
   return (
     <div className="space-y-8 p-6">
-      {/* Welcome Section */}
       <div className="rounded-xl border bg-white p-8 shadow-sm text-center">
         {!user ? (
           <>
@@ -70,7 +70,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* Products Section */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <h2 className="text-2xl font-bold text-gray-900">All Products</h2>
@@ -102,7 +101,7 @@ export default function Home() {
         ) : products.length === 0 ? (
           <div className="rounded-xl border bg-white p-12 shadow-sm text-center">
             <p className="text-sm text-gray-500 mb-4">No products yet.</p>
-          {user && user.role !== 'Buyer' && (
+            {user && user.role !== 'Buyer' && (
               <Link
                 to="/dashboard/add-product"
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
@@ -112,43 +111,89 @@ export default function Home() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 py-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
             {products.map((p) => (
               <article
                 key={p._id}
-                className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md group"
+                className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg group"
                 onClick={() => goToProduct(p._id)}
               >
-                <div className="aspect-[4/3] rounded-t-xl overflow-hidden bg-gray-100">
+                <div className="aspect-[4/3] overflow-hidden bg-[#f8f9fa]">
                   <img
                     src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
                     alt={p.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 cursor-pointer"
                     loading="lazy"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!user) { alert('Please log in first.'); return; }
+                      setSelectedProduct(p);
+                    }}
                   />
                 </div>
                 <div className="p-4">
+                  <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
+                    <span className="uppercase tracking-wide">{p.category || 'Product'}</span>
+                    {p.rating != null && (
+                      <span>⭐ {p.rating} {p.reviewCount ? `(${p.reviewCount})` : ''}</span>
+                    )}
+                  </div>
+                  <h3 className="mb-1 line-clamp-2 font-bold text-orange-500 group-hover:text-orange-600">{p.title}</h3>
                   {p.seller && (
-                    <div className="mb-2 flex items-center gap-1.5 text-xs text-gray-500">
-                      <span className="truncate">{p.seller.storeName || p.seller.name || 'Seller'}</span>
+                    <div className="mb-3 text-xs text-gray-500">
+                      By Store:{' '}
+                      <span
+                        className="font-medium text-blue-600 hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!user) {
+                            alert('Please log in first to view seller.');
+                            return;
+                          }
+                          navigate(`/seller/${p.seller._id}`);
+                        }}
+                      >
+                        {p.seller.storeName || p.seller.name || 'Seller'}
+                      </span>
                       {p.seller.isVerified && (
-                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-700">
-                          <span aria-hidden="true">✓</span> Verified
-                        </span>
+                        <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-700">✓ Verified</span>
                       )}
                     </div>
                   )}
-                  <h3 className="mb-1 line-clamp-1 font-semibold text-gray-900 group-hover:text-blue-600">{p.title}</h3>
-                  <p className="mb-3 line-clamp-2 text-sm text-gray-600">{p.description}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-blue-600">
                       {p.currency === 'SEK' ? 'kr' : p.currency === 'EUR' ? '€' : '$'}{p.price}
                     </span>
-                    <span className="text-xs text-gray-500">Stock: {p.inventory}</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!user) { alert('Please log in first.'); return; }
+                        goToProduct(p._id);
+                      }}
+                      className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                    >
+                      Add to Cart
+                    </button>
                   </div>
+                  {p.inventory != null && p.inventory <= 3 && (
+                    <p className="mt-2 text-xs font-medium text-red-600">Only {p.inventory} left!</p>
+                  )}
                 </div>
               </article>
             ))}
+          </div>
+        )}
+
+        {selectedProduct && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setSelectedProduct(null)}>
+            <div className="max-w-2xl w-full bg-white rounded-xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+              <img src={(selectedProduct.images?.[0]?.url ?? selectedProduct.images?.[0]) || 'https://placehold.co/600x400?text=No+Image'} alt={selectedProduct.title} className="w-full h-auto object-contain bg-[#f8f9fa]" />
+              <div className="p-4">
+                <h2 className="text-xl font-bold text-orange-500">{selectedProduct.title}</h2>
+                <p className="mt-2 text-sky-400">{selectedProduct.description}</p>
+                <button className="mt-4 rounded bg-gray-200 px-3 py-1" onClick={() => setSelectedProduct(null)}>Close</button>
+              </div>
+            </div>
           </div>
         )}
       </div>

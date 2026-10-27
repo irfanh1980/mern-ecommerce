@@ -556,7 +556,7 @@ export default function Dashboard() {
                           {formatPrice(p.price, p.currency)}
                         </p>
                         <p className="mt-1 text-xs text-gray-500">
-                          By {p.seller?.email || 'Seller'}
+                          By {p.seller?.storeName || p.seller?.name || 'Seller'}
                         </p>
                         <Link
                           to={`/products/${p._id}`}

@@ -35,6 +35,7 @@ export default function Navbar() {
     <nav className="bg-gray-900 text-white">
       <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
+          <span className="text-xl font-bold text-green-300">Welcome to</span>
           <img src="/logo.jfif" alt="Logo" className="h-8 w-auto" />
           <span className="text-xl font-bold">Marketplace</span>
         </Link>
@@ -68,10 +69,14 @@ export default function Navbar() {
             </>
           ) : (
             <>
-               <Link to="/login" className={`hover:text-gray-300 ${location.pathname === '/login' ? 'text-blue-400' : ''}`}>{location.pathname === '/' || location.pathname === '/login' ? 'Login' : 'Login (as Buyer/Seller/Admin?)'}</Link>
-              <Link to="/register" className={`rounded bg-blue-600 px-3 py-1 text-sm hover:bg-blue-700 ${location.pathname === '/register' ? 'bg-blue-800' : ''}`}>
-                Register
-              </Link>
+              {location.pathname !== '/' && (
+                <>
+                  <Link to="/login" className={`hover:text-gray-300 ${location.pathname === '/login' ? 'text-blue-400' : ''}`}>Login</Link>
+                  <Link to="/register" className={`rounded bg-blue-600 px-3 py-1 text-sm hover:bg-blue-700 ${location.pathname === '/register' ? 'bg-blue-800' : ''}`}>
+                    Register
+                  </Link>
+                </>
+              )}
             </>
           )}
         </div>
