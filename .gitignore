@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+*.log
+server-error.txt
+server-output.txt
+.kilo/agent-manager.json
