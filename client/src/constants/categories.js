@@ -1,0 +1,58 @@
+import {
+  ShoppingBag, Car, Ship, PawPrint, Laptop, HardHat, Wrench, Gamepad2, Baby, Caravan, Shirt, Palette, Bike, Sofa, Dumbbell, Sprout,
+} from 'lucide-react';
+
+export const CATEGORY_ICONS = {
+  'Business activities': ShoppingBag,
+  'Car': Car,
+  'Boat': Ship,
+  'Animals and accessories': PawPrint,
+  'Electronics and appliances': Laptop,
+  'Construction and agricultural machinery': HardHat,
+  'Vehicle accessories': Wrench,
+  'Leisure, hobbies and entertainment': Gamepad2,
+  'Parents and children': Baby,
+  'Motorhome and caravan': Caravan,
+  'Clothing, cosmetics and accessories': Shirt,
+  'Art and antiques': Palette,
+  'Motorcycles, ATVs and snowmobiles': Bike,
+  'Furniture and interior design': Sofa,
+  'Sports and leisure': Dumbbell,
+  'Garden and renovation': Sprout,
+};
+export const MAIN_CATEGORIES = [
+  'Business activities',
+  'Boat',
+  'Animals and accessories',
+  'Electronics and appliances',
+  'Construction and agricultural machinery',
+  'Vehicle accessories',
+  'Leisure, hobbies and entertainment',
+  'Parents and children',
+  'Motorhome and caravan',
+  'Clothing, cosmetics and accessories',
+  'Art and antiques',
+  'Motorcycles, ATVs and snowmobiles',
+  'Furniture and interior design',
+  'Sports and leisure',
+  'Garden and renovation',
+];
+
+export const SUBCATEGORIES = {
+  'Business activities': ['Shop and retail','Containers and barracks','Web and domain names','Health and first aid','Agriculture','Office equipment and furnishings','Load and transport','Machine equipment and spare parts','Stage','Commercial kitchen and restaurant','Workshop, building and construction','Other'],
+  'Car': ['A-tractors','Cars','Car parts and accessories','Trailers and trailers','Transport trucks'],
+  'Boat': ['Boat','Boat parts and accessories','Trailers and trailers'],
+  'Animals and accessories': ['Aquarium','Cages','Pisces','Feed, animal care, kennels and stables','Birds','Rodents and rabbits','Dogs','Dog accessories','Horse and riding equipment','Horses','Cats','Cat accessories','Farm animals','Reptiles','Spiders and insects','Other animals','Other pet accessories'],
+  'Electronics and appliances': ['Computers','Photo and video','Household appliances','Sound and image','Personal care','Phones and accessories','Video games and game consoles','White goods','Other'],
+  'Construction and agricultural machinery': ['Bus','Construction & construction','Truck and trailer','Forestry and agricultural machinery','Combine harvesters','Tractors'],
+  'Vehicle accessories': ['ATV spare parts','Car parts and accessories','Boat parts and accessories','Caravan and motorhome parts','Motorcycle equipment and spare parts','Trailers and trailers','Other'],
+  'Leisure, hobbies and entertainment': ['Tickets and travel','Books and magazines','Crafts','Food and drink','Models and kits','Music and movies','Musical instrument','Radio-controlled devices','Collectibles','Board and party games','Other'],
+  'Parents and children': ['Children\'s books','Children\'s clothing','Children\'s furniture','Children\'s shoes','Children\'s accessories and safety','Strollers','Car seats and baby seats','Maternity clothes','Children\'s room decor','Toys','Other'],
+  'Motorhome and caravan': ['Motorhomes','Caravans','Caravan and motorhome parts'],
+  'Clothing, cosmetics and accessories': ['Accessories','Women\'s clothing','Glasses and sunglasses','Men\'s clothing','Skin, hair and body care','Watches and clocks','Cosmetic','Fancy dress','Shoes','Jewelry and jewelry storage','Bags and wallets','Other'],
+  'Art and antiques': ['Antique furniture','Ceramics, porcelain and glass','Art','Silverware and silver cutlery','Other antiques'],
+  'Motorcycles, ATVs and snowmobiles': ['ATVs','ATV spare parts','Motorcycle and ATV trailers','Motorcycles','ATV\'s and snowmobiles','Motorcycle equipment and spare parts','Mopeds, scooters and mopeds'],
+  'Furniture and interior design': ['Tables and chairs','Decoration and ornaments','Wardrobes and storage','Shelves and chests of drawers','Kitchenware and tableware','Lamps','Carpets and textiles','Decorations for holidays and parties','Sofas and armchairs','Beds and mattresses','Other furniture and interior design'],
+  'Sports and leisure': ['Ball sports','Cycle','Extreme sports','Golf','Hunting, fishing and camping','Dietary supplements','Roller skating, ice hockey and figure skating','Shooting','Supporter products','Fitness watches and activity bracelets','Workout clothes and shoes','Training equipment','Water sports','Winter sports','Other sports'],
+  'Garden and renovation': ['Bathroom and sauna','Building materials and renovation','Garage parts and accessories','Kitchen furniture and kitchen units','Alarm and security','Garden and outdoor environment','Equipment for holiday homes','Tool'],
+};

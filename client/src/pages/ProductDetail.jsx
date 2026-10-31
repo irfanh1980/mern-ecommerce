@@ -80,7 +80,7 @@ export default function ProductDetail() {
             <img
               src={(product.images?.[0]?.url ?? product.images?.[0]) || 'https://placehold.co/600x450?text=No+Image'}
               alt={product.title}
-              className="w-full h-full object-cover"
+               className="w-full h-full object-contain"
             />
           </div>
           {product.images?.slice(1).map((img, i) => (
@@ -88,7 +88,7 @@ export default function ProductDetail() {
               key={i}
               className="aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 border border-gray-200 cursor-pointer"
             >
-              <img src={img.url ?? img} alt="" className="w-full h-full object-cover opacity-50 hover:opacity-100 transition-opacity" />
+               <img src={img.url ?? img} alt="" className="w-full h-full object-contain opacity-50 hover:opacity-100 transition-opacity" />
             </div>
           ))}
         </div>
@@ -113,7 +113,7 @@ export default function ProductDetail() {
           <div className="pt-4 border-t border-gray-200">
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-2">Price</h3>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-blue-600">{symbol}{product.price}</span>
+              <span className="text-3xl font-bold text-blue-600">{product.price} {product.currency === 'SEK' ? 'sek' : product.currency.toLowerCase()}</span>
               <span className="text-sm text-gray-500">· Stock: {product.inventory}</span>
             </div>
           </div>

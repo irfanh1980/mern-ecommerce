@@ -1,16 +1,6 @@
 import { z } from 'zod';
 
-const categoryEnum = z.enum([
-  'electronics',
-  'clothing',
-  'home',
-  'books',
-  'sports',
-  'beauty',
-  'toys',
-  'food',
-  'other',
-]);
+const categoryEnum = z.string().min(1);
 
 export const productBodySchema = z.object({
   title: z

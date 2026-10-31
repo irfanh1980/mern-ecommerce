@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Info, History, Star, Key, Briefcase, ShoppingCart, AlertTriangle, Search } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
+import { MAIN_CATEGORIES, CATEGORY_ICONS } from '../constants/categories.js';
 
 const roleLabels = {
   Buyer: 'Buyer',
@@ -17,6 +19,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -70,9 +74,49 @@ export default function Home() {
         )}
       </div>
 
+      <div className="space-y-4">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search for poodle or PlayStation"
+            className="w-full rounded-full border border-gray-300 px-5 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={() => navigate(searchQuery ? `/products?search=${encodeURIComponent(searchQuery)}` : '/products')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-blue-600 p-2 text-white hover:bg-blue-700"
+          >
+            <Search size={18} />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {MAIN_CATEGORIES.map((c) => {
+            const Icon = CATEGORY_ICONS[c];
+            return (
+              <button
+                key={c}
+                onClick={() => navigate(`/products?category=${encodeURIComponent(c)}`)}
+                className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-3 text-center transition hover:shadow-md hover:border-blue-400"
+              >
+                {Icon && <Icon size={24} className="text-red-500" />}
+                <span className="text-xs font-medium text-gray-700">{c}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <h2 className="text-2xl font-bold text-gray-900">All Products</h2>
+          <div className="flex gap-2">
+            <select value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)} className="rounded border px-3 py-2 text-sm">
+              <option value="">All categories</option>
+              {MAIN_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <button onClick={() => navigate(searchCategory ? `/products?category=${encodeURIComponent(searchCategory)}` : '/products')} className="rounded bg-blue-600 px-4 py-2 text-sm text-white">Search</button>
+          </div>
           {user && user.role !== 'Buyer' && (
             <Link
               to="/dashboard/add-product"
@@ -118,11 +162,11 @@ export default function Home() {
                 className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg group"
                 onClick={() => goToProduct(p._id)}
               >
-                <div className="aspect-[4/3] overflow-hidden bg-[#f8f9fa]">
+                <div className="aspect-[4/3] overflow-hidden rounded-t-2xl bg-[#f8f9fa] relative">
                   <img
                     src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
                     alt={p.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 cursor-pointer"
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 cursor-pointer"
                     loading="lazy"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -130,39 +174,43 @@ export default function Home() {
                       setSelectedProduct(p);
                     }}
                   />
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    <span className="bg-white/80 rounded-full p-1"><Info size={14} /></span>
+                    <span className="bg-white/80 rounded-full p-1"><History size={14} /></span>
+                    <span className="bg-white/80 rounded-full p-1"><Star size={14} /></span>
+                  </div>
                 </div>
                 <div className="p-4">
-                  <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
-                    <span className="uppercase tracking-wide">{p.category || 'Product'}</span>
-                    {p.rating != null && (
-                      <span>⭐ {p.rating} {p.reviewCount ? `(${p.reviewCount})` : ''}</span>
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="text-gray-400">{(() => { const Icon = CATEGORY_ICONS[p.category]; return Icon ? <Icon size={24} /> : null; })()}</span>
+                    <h3 className="font-bold text-orange-700 line-clamp-2">{p.title}</h3>
+                  </div>
+                  <div className="mb-3 text-xs text-gray-600 flex items-center gap-3">
+                    <span className="flex items-center gap-1 cursor-pointer" onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(p._id); alert('Copied to clipboard!'); }}>
+                      <Key size={12} /> Product ID
+                    </span>
+                    {p.seller && (
+                      <span className="flex items-center gap-1">
+                        <Briefcase size={12} />
+                        <span
+                          className="font-medium text-blue-600 hover:underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!user) { alert('Please log in first to view seller.'); return; }
+                            navigate(`/seller/${p.seller._id}`);
+                          }}
+                        >
+                          {p.seller.storeName || p.seller.name || 'Seller'}
+                        </span>
+                        {p.seller.isVerified && (
+                          <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-700">✓ Verified</span>
+                        )}
+                      </span>
                     )}
                   </div>
-                  <h3 className="mb-1 line-clamp-2 font-bold text-orange-500 group-hover:text-orange-600">{p.title}</h3>
-                  {p.seller && (
-                    <div className="mb-3 text-xs text-gray-500">
-                      By Store:{' '}
-                      <span
-                        className="font-medium text-blue-600 hover:underline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!user) {
-                            alert('Please log in first to view seller.');
-                            return;
-                          }
-                          navigate(`/seller/${p.seller._id}`);
-                        }}
-                      >
-                        {p.seller.storeName || p.seller.name || 'Seller'}
-                      </span>
-                      {p.seller.isVerified && (
-                        <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-700">✓ Verified</span>
-                      )}
-                    </div>
-                  )}
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-blue-600">
-                      {p.currency === 'SEK' ? 'kr' : p.currency === 'EUR' ? '€' : '$'}{p.price}
+                      {p.price} {p.currency === 'SEK' ? 'sek' : p.currency.toLowerCase()}
                     </span>
                     <button
                       onClick={(e) => {
@@ -170,13 +218,15 @@ export default function Home() {
                         if (!user) { alert('Please log in first.'); return; }
                         goToProduct(p._id);
                       }}
-                      className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                      className="flex items-center gap-1 rounded-full bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-1.5 text-sm font-medium text-white shadow-md hover:shadow-lg"
                     >
-                      Add to Cart
+                      <ShoppingCart size={14} /> Add to Cart
                     </button>
                   </div>
                   {p.inventory != null && p.inventory <= 3 && (
-                    <p className="mt-2 text-xs font-medium text-red-600">Only {p.inventory} left!</p>
+                    <p className="flex items-center gap-1 text-xs font-semibold text-red-600 bg-red-50 rounded px-2 py-1 w-fit">
+                      <AlertTriangle size={12} /> Only {p.inventory} left!
+                    </p>
                   )}
                 </div>
               </article>

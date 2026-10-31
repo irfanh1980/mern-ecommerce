@@ -2,27 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
-const CATEGORIES = [
-  'electronics',
-  'clothing',
-  'home',
-  'books',
-  'sports',
-  'beauty',
-  'toys',
-  'food',
-  'furniture',
-  'automotive',
-  'vehicles',
-  'jewelry',
-  'pet',
-  'garden',
-  'music',
-  'office',
-  'health',
-  'baby',
-  'other',
-];
+import { MAIN_CATEGORIES as CATEGORIES } from '../constants/categories.js';
 
 export default function Products() {
   const { api, user } = useAuth();
@@ -179,7 +159,7 @@ export default function Products() {
                   <img
                     src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
                     alt={p.title}
-                    className="h-44 w-full object-cover"
+                     className="h-44 w-full object-contain"
                     loading="lazy"
                   />
                   <div className="p-4">
@@ -201,7 +181,7 @@ export default function Products() {
                     <h3 className="mb-1 truncate text-base font-semibold">{p.title}</h3>
                     <p className="mb-2 line-clamp-2 text-sm text-gray-600">{p.description}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-blue-600">${p.price.toFixed(2)}</span>
+                       <span className="text-lg font-bold text-blue-600">{p.price} {p.currency === 'SEK' ? 'sek' : p.currency.toLowerCase()}</span>
                       <span className="text-xs text-gray-500">Stock: {p.inventory}</span>
                     </div>
                      <button

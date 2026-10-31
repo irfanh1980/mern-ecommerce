@@ -179,6 +179,8 @@ const fetchConversations = async () => {
                 if (!activeConversation) return;
                 await api.delete(`/api/conversations/${activeConversation._id}/messages`);
                 setMessages([]);
+                setConversations((prev) => prev.filter((c) => c._id !== activeConversation._id));
+                setActiveConversation(null);
               }}
               className="ml-2 text-sm text-red-600 hover:underline"
             >

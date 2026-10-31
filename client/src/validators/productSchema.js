@@ -12,27 +12,9 @@ export const CURRENCY_SYMBOLS = {
   EUR: '€',
 };
 
-export const CATEGORIES = [
-  'electronics',
-  'clothing',
-  'home',
-  'books',
-  'sports',
-  'beauty',
-  'toys',
-  'food',
-  'furniture',
-  'automotive',
-  'vehicles',
-  'jewelry',
-  'pet',
-  'garden',
-  'music',
-  'office',
-  'health',
-  'baby',
-  'other',
-];
+import { MAIN_CATEGORIES } from '../constants/categories.js';
+
+export const CATEGORIES = MAIN_CATEGORIES;
 
 export const productSchema = z.object({
   title: z
@@ -72,4 +54,5 @@ export const productSchema = z.object({
   category: z.enum(CATEGORIES, {
     required_error: 'Please select a category',
   }),
+  subcategory: z.string().optional().default(''),
 });

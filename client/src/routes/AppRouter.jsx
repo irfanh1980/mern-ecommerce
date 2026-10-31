@@ -8,6 +8,7 @@ import Login from '../pages/Login.jsx';
 import Register from '../pages/Register.jsx';
 import Checkout from '../pages/Checkout.jsx';
 import SellerStorefront from '../pages/SellerStorefront.jsx';
+import SellerProfile from '../pages/SellerProfile.jsx';
 import SellerDashboard from '../pages/SellerDashboard.jsx';
 import Dashboard from '../pages/Dashboard.jsx';
 import AddProduct from '../pages/AddProduct.jsx';
@@ -27,6 +28,7 @@ export default function AppRouter() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/seller/:id" element={<SellerProfile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
             <Route path="/cart" element={<Cart />} />

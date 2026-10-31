@@ -199,10 +199,8 @@ export const clearConversation = asyncHandler(async (req, res) => {
     return res.status(403).json({ success: false, message: 'Not authorized' });
   }
   await Message.deleteMany({ conversation: id });
-  conversation.lastMessage = null;
-  conversation.unreadCount = new Map();
-  await conversation.save();
-  res.status(200).json({ success: true, message: 'Messages cleared' });
+  await Conversation.deleteOne({ _id: id });
+  res.status(200).json({ success: true, message: 'Conversation deleted' });
 });
 
 export const getUnreadCount = asyncHandler(async (req, res) => {
