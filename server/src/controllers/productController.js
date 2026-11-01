@@ -22,8 +22,16 @@ export const getProducts = asyncHandler(async (req, res) => {
   } = req.query;
 
   const filter = { isActive: true };
-  if (category) filter.category = category.toLowerCase();
-  if (search) filter.$text = { $search: search };
+  if (category) filter.category = new RegExp(`^${category}$`, 'i');
+  if (search) {
+    const regex = new RegExp(search, 'i');
+    filter.$or = [
+      { title: regex },
+      { description: regex },
+      { category: regex },
+      { subcategory: regex },
+    ];
+  }
   if (req.query.seller) filter.seller = req.query.seller;
 
   const pageNum = Math.max(1, parseInt(page, 10) || 1);

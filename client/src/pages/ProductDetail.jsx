@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
+import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
 
 export default function ProductDetail() {
   const { api, user } = useAuth();
@@ -73,6 +74,13 @@ export default function ProductDetail() {
         <span>&larr;</span> Back to home
       </Link>
 
+      <nav aria-label="Breadcrumb" className="px-6 py-2 text-sm text-gray-500">
+        <ol className="flex flex-wrap items-center gap-1">
+          <li><Link to="/" className="hover:underline">Home</Link></li>
+          <li className="flex items-center gap-1"><span>/</span><Link to="/products" className="hover:underline">Products</Link></li>
+          <li className="flex items-center gap-1"><span>/</span><span className="text-gray-900">{product?.title || id}</span></li>
+        </ol>
+      </nav>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Images */}
         <div className="space-y-4">

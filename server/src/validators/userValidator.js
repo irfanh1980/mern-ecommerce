@@ -16,12 +16,7 @@ export const profileUpdateSchema = z
       .min(2, 'Name must be at least 2 characters')
       .max(50, 'Name cannot exceed 50 characters')
       .optional(),
-    phone: z
-      .string()
-      .trim()
-      .regex(/^\+?[\d\s-]{7,15}$/, 'Please enter a valid phone number')
-      .optional()
-      .or(z.literal('')),
+    phone: z.string().trim().optional().default(''),
     avatar: z
       .string()
       .trim()
@@ -29,7 +24,7 @@ export const profileUpdateSchema = z
       .optional()
       .or(z.literal('')),
     role: z
-      .enum(['Buyer', 'Seller', 'Both'])
+      .enum(['Buyer', 'Seller', 'Both', 'Admin'])
       .optional(),
     address: addressSchema.optional(),
   })

@@ -35,6 +35,7 @@ export default function ImageUpload({
   const [uploading, setUploading] = useState(false);
   const [files, setFiles] = useState([]); // local File[] pending upload
   const [uploadedUrls, setUploadedUrls] = useState(normalizedInitial); // [{ url, public_id }]
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const inputRef = useRef(null);
   const urlMapRef = useRef(new Map());
 
@@ -141,7 +142,9 @@ export default function ImageUpload({
         throw new Error(data.error || data.message || 'Image upload failed');
       }
 
-      const images = data.data.images;
+       const images = data.data.images;
+       setUploadSuccess(true);
+       setTimeout(() => setUploadSuccess(false), 3000);
       files.forEach((file) => revokeUrl(file));
       setFiles([]);
       if (single) {
@@ -387,6 +390,11 @@ export default function ImageUpload({
               {error}
             </p>
           )}
+          {uploadSuccess && (
+            <p className="text-sm text-green-600 bg-green-50 rounded-md border border-green-100 px-3 py-2">
+              Image uploaded successfully.
+            </p>
+          )}
         </>
       ) : (
         <>
@@ -476,6 +484,11 @@ export default function ImageUpload({
               className="text-sm text-red-600 bg-red-50 rounded-md border border-red-100 px-3 py-2"
             >
               {error}
+            </p>
+          )}
+          {uploadSuccess && (
+            <p className="text-sm text-green-600 bg-green-50 rounded-md border border-green-100 px-3 py-2">
+              Image uploaded successfully.
             </p>
           )}
 

@@ -4,7 +4,7 @@ import {
 
 export const CATEGORY_ICONS = {
   'Business activities': ShoppingBag,
-  'Car': Car,
+  'Vehicles & Parts': Car,
   'Boat': Ship,
   'Animals and accessories': PawPrint,
   'Electronics and appliances': Laptop,
@@ -22,6 +22,7 @@ export const CATEGORY_ICONS = {
 };
 export const MAIN_CATEGORIES = [
   'Business activities',
+  'Vehicles & Parts',
   'Boat',
   'Animals and accessories',
   'Electronics and appliances',
@@ -39,7 +40,7 @@ export const MAIN_CATEGORIES = [
 ];
 
 export const SUBCATEGORIES = {
-  'Business activities': ['Shop and retail','Containers and barracks','Web and domain names','Health and first aid','Agriculture','Office equipment and furnishings','Load and transport','Machine equipment and spare parts','Stage','Commercial kitchen and restaurant','Workshop, building and construction','Other'],
+  'Vehicles & Parts': ['Motor Vehicles (Cars & Trucks)','Watercraft (Boats)','Bicycles','Parts & Accessories'],
   'Car': ['A-tractors','Cars','Car parts and accessories','Trailers and trailers','Transport trucks'],
   'Boat': ['Boat','Boat parts and accessories','Trailers and trailers'],
   'Animals and accessories': ['Aquarium','Cages','Pisces','Feed, animal care, kennels and stables','Birds','Rodents and rabbits','Dogs','Dog accessories','Horse and riding equipment','Horses','Cats','Cat accessories','Farm animals','Reptiles','Spiders and insects','Other animals','Other pet accessories'],

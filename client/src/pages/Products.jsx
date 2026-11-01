@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { MAIN_CATEGORIES as CATEGORIES } from '../constants/categories.js';
 
@@ -12,7 +12,8 @@ export default function Products() {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [category, setCategory] = useState('');
+  const [searchParams] = useSearchParams();
+  const [category, setCategory] = useState(searchParams.get('category') || '');
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [minPrice, setMinPrice] = useState('');

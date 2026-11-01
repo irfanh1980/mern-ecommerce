@@ -1,4 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { PlusCircle, MessageCircle, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useEffect, useState } from 'react';
 
@@ -35,31 +36,31 @@ export default function Navbar() {
     <nav className="bg-gray-900 text-white">
       <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold text-green-300">Welcome to</span>
-          <img src="/logo.jfif" alt="Logo" className="h-8 w-auto" />
-          <span className="text-xl font-bold">Marketplace</span>
+          <img src="/logo.jpg" alt="Logo" className="h-8 w-auto" />
+          <span className="text-xl font-bold">E-Market</span>
         </Link>
-        <div className="flex items-center gap-4">
-          {user?.role === 'Buyer' && (
-            <Link to="/cart" className={`hover:text-gray-300 ${location.pathname === '/cart' ? 'text-blue-400' : ''}`}>Cart</Link>
-          )}
-            {user ? (
+        <div className="flex items-center gap-6">
+          {location.pathname !== '/login' && (
             <>
-            {user && location.pathname !== '/' && (
-              <span className="text-sm text-gray-300">Logged in as: {user.role === 'Both' ? 'Seller/Buyer' : user.role}</span>
-            )}
-               <Link to="/dashboard" className={`hover:text-gray-300 ${location.pathname === '/dashboard' ? 'text-blue-400' : ''}`}>Dashboard</Link>
-              <Link
-                to="/messaging"
-                className={`relative hover:text-gray-300 ${location.pathname === '/messaging' ? 'text-blue-400' : ''}`}
-              >
-                Messages
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-                    {unreadCount}
-                  </span>
-                )}
+              <Link to="/dashboard/add-product" className="flex items-center gap-1 hover:text-gray-300 hover:underline">
+                <PlusCircle size={18} /> New ad
               </Link>
+          {user && (
+            <Link to="/messaging" className="flex items-center gap-1 hover:text-gray-300 hover:underline">
+              <MessageCircle size={18} /> Messages
+            </Link>
+          )}
+              {user?.role === 'Buyer' && (
+                <Link to="/cart" className={`hover:text-gray-300 hover:underline ${location.pathname === '/cart' ? 'text-blue-400' : ''}`}>Cart</Link>
+              )}
+            </>
+          )}
+              {user?.role?.toLowerCase() === 'admin' && (
+                <Link to="/admin" className={`hover:text-gray-300 hover:underline ${location.pathname === '/admin' ? 'text-blue-400' : ''}`}>Control Center</Link>
+              )}
+              {user && (
+            <>
+                <Link to="/dashboard" className={`hover:text-gray-300 hover:underline ${location.pathname === '/dashboard' ? 'text-blue-400' : ''}`}>Dashboard</Link>
               <button
                 onClick={handleLogout}
                 className="rounded bg-red-600 px-3 py-1 text-sm hover:bg-red-700"
@@ -67,11 +68,12 @@ export default function Navbar() {
                 Logout
               </button>
             </>
-          ) : (
+          )}
+          {!user && (
             <>
-              {location.pathname !== '/' && (
+              {location.pathname !== '/' && location.pathname !== '/login' && (
                 <>
-                  <Link to="/login" className={`hover:text-gray-300 ${location.pathname === '/login' ? 'text-blue-400' : ''}`}>Login</Link>
+                  <Link to="/login" className={`hover:text-gray-300 hover:underline ${location.pathname === '/login' ? 'text-blue-400' : ''}`}>Login</Link>
                   <Link to="/register" className={`rounded bg-blue-600 px-3 py-1 text-sm hover:bg-blue-700 ${location.pathname === '/register' ? 'bg-blue-800' : ''}`}>
                     Register
                   </Link>

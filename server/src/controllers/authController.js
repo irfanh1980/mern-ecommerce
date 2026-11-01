@@ -183,7 +183,10 @@ export const updateProfile = async (req, res, next) => {
     if (name !== undefined) user.name = name;
     if (phone !== undefined) user.phone = phone;
     if (avatar !== undefined) user.avatar = avatar;
-    if (role !== undefined && role !== 'Admin') {
+    if (role !== undefined) {
+      if (role === 'Admin' && req.user.role !== 'Admin') {
+        return res.status(403).json({ success: false, message: 'Not allowed to set Admin role' });
+      }
       user.role = role;
     }
     if (address !== undefined) {

@@ -101,6 +101,18 @@ export default function ProductForm({
         </div>
       )}
 
+      <div>
+        <p className="mb-2 font-bold text-gray-900">Listing Type</p>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2">
+            <input type="radio" name="listingType" value="selling" defaultChecked /> selling
+          </label>
+          <label className="flex items-center gap-2">
+            <input type="radio" name="listingType" value="given" className="accent-blue-600" /> Given away
+          </label>
+        </div>
+      </div>
+
       <ImageUpload
         key={`${product?._id || 'new'}-${imageSession}`}
         label="Product image"

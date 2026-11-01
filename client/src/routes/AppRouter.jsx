@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import Navbar from '../components/layout/Navbar.jsx';
+import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
 import Home from '../pages/Home.jsx';
 import Products from '../pages/Products.jsx';
 import ProductDetail from '../pages/ProductDetail.jsx';

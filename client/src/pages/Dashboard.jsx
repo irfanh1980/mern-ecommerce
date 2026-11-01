@@ -525,6 +525,11 @@ export default function Dashboard() {
               <section className="mt-8">
                 <div className="mb-6 flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-gray-900">Available Products</h2>
+                  {user?.role?.toLowerCase() === 'admin' && (
+                    <Link to="/admin" className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700">
+                      Admin Panel
+                    </Link>
+                  )}
                   <p className="text-sm text-gray-500">
                     {availableProducts.length} product(s) available
                   </p>
@@ -832,6 +837,7 @@ export default function Dashboard() {
                         <option value="Buyer">Buyer</option>
                         <option value="Seller">Seller</option>
                         <option value="Both">Buyer &amp; Seller</option>
+                        <option value="Admin">Admin</option>
                       </select>
                     </div>
                     <div>

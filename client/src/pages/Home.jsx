@@ -55,7 +55,7 @@ export default function Home() {
       <div className="rounded-xl border bg-white p-8 shadow-sm text-center">
         {!user ? (
           <>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Marketplace</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to E-Market</h1>
             <p className="text-gray-600 mb-6">Browse products below or sign in to start selling.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to="/login" className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white hover:bg-blue-700">
@@ -171,7 +171,7 @@ export default function Home() {
                     onClick={(e) => {
                       e.stopPropagation();
                       if (!user) { alert('Please log in first.'); return; }
-                      setSelectedProduct(p);
+                      goToProduct(p._id);
                     }}
                   />
                   <div className="absolute top-2 right-2 flex gap-1">

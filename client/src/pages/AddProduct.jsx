@@ -9,8 +9,8 @@ import ImageUpload from '../components/ui/ImageUpload.jsx';
 export default function AddProduct() {
   const { api } = useAuth();
   const navigate = useNavigate();
+  const [transactionType, setTransactionType] = useState('given');
   const [message, setMessage] = useState('');
-  const [alert, setAlert] = useState('');
   const [saving, setSaving] = useState(false);
   const [imageUrls, setImageUrls] = useState([]);
 
@@ -113,15 +113,23 @@ export default function AddProduct() {
           {message}
         </div>
       )}
-      {alert && (
-          <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
-          {alert}
-        </div>
-      )}
-
-      <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+       <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <form onSubmit={handleSubmit(onValid, onInvalid)} className="space-y-5" noValidate>
-          <ImageUpload
+          <div>
+          <p className="mb-2 font-bold text-gray-900">Listing Type</p>
+         <div className="flex gap-4">
+           <label className="flex items-center gap-2">
+             <input type="radio" name="transactionType" value="sell" checked={transactionType === 'sell'} onChange={() => setTransactionType('sell')} />
+             selling
+           </label>
+           <label className="flex items-center gap-2">
+             <input type="radio" name="transactionType" value="given" checked={transactionType === 'given'} onChange={() => setTransactionType('given')} className="accent-blue-600" />
+             Given away
+           </label>
+         </div>
+       </div>
+
+       <ImageUpload
             key="new"
             label="Product images"
             multiple
