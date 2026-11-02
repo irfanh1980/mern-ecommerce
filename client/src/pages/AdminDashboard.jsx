@@ -298,9 +298,12 @@ export default function AdminDashboard() {
 
         {/* Edit User Modal */}
         {editUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="fixed inset-0 bg-black opacity-50 backdrop-blur-sm" onClick={closeEditUser} />
-            <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl border border-gray-200" onClick={(e) => e.stopPropagation()}>
+          
+<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
+  <div 
+    className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl border border-gray-200 relative z-10 my-8" 
+    onClick={(e) => e.stopPropagation()}
+  >
               <h2 className="mb-4 text-xl font-bold">Edit User</h2>
               {updateError && (
                 <div className="mb-3 rounded bg-red-50 p-2 text-sm text-red-700">{updateError}</div>
