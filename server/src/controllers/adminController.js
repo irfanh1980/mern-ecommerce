@@ -26,13 +26,24 @@ export const getAllUsers = asyncHandler(async (req, res) => {
     User.countDocuments(filter),
   ]);
 
+  const userIds = users.map((u) => u._id);
+  const counts = await Product.aggregate([
+    { $match: { seller: { $in: userIds } } },
+    { $group: { _id: '$seller', count: { $sum: 1 } } },
+  ]);
+  const countMap = new Map(counts.map((c) => [String(c._id), c.count]));
+  const data = users.map((u) => ({
+    ...u.toObject(),
+    listingCount: countMap.get(String(u._id)) || 0,
+  }));
+
   res.status(200).json({
     success: true,
-    count: users.length,
+    count: data.length,
     total,
     page: pageNum,
     pages: Math.ceil(total / limitNum),
-    data: users,
+    data,
   });
 });
 

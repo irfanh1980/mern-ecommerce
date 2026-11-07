@@ -82,10 +82,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/popular-searches', popularSearchRoutes);
 app.use('/api/uploads', uploadRoutes);
-app.use('/api/orders', orderRoutes);
+app.use('/api/conversations', conversationRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/conversations', conversationRoutes);
+app.use('/api/admin', (await import('./routes/adminAi.js')).default);
+app.use('/api/users', (await import('./routes/userRoutes.js')).default);
 
 app.use(errorMiddleware);
 

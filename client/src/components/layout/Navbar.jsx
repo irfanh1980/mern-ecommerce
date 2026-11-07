@@ -11,7 +11,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    window.location.href = '/';
   };
 
   const fetchUnreadCount = async () => {
@@ -42,9 +42,15 @@ export default function Navbar() {
         <div className="flex items-center gap-6">
           {location.pathname !== '/login' && (
             <>
-              <Link to="/dashboard/add-product" className="flex items-center gap-1 hover:text-gray-300 hover:underline">
-                <PlusCircle size={18} /> New ad
-              </Link>
+              {user?.role === 'Buyer' ? (
+                <button onClick={() => { alert('Please change your account role to Seller or Both in your profile to post ads.'); navigate('/dashboard'); }} className="flex items-center gap-1 hover:text-gray-300 hover:underline">
+                  <PlusCircle size={18} /> New ad
+                </button>
+              ) : (
+                <Link to="/dashboard/add-product" className="flex items-center gap-1 hover:text-gray-300 hover:underline">
+                  <PlusCircle size={18} /> New ad
+                </Link>
+              )}
           {user && (
             <Link to="/messaging" className="flex items-center gap-1 hover:text-gray-300 hover:underline">
               <MessageCircle size={18} /> Messages

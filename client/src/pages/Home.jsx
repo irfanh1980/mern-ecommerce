@@ -19,8 +19,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const roleLabels = { Buyer: 'Buyer', Seller: 'Seller', Both: 'Buyer & Seller', Admin: 'Admin' };
+  const roleLabel = roleLabels[user?.role] || user?.role;
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('');
+  const [categoryCounts, setCategoryCounts] = useState({});
 
   useEffect(() => {
     let cancelled = false;
@@ -44,7 +47,22 @@ export default function Home() {
     };
   }, [api]);
 
-  const roleLabel = roleLabels[user?.role] || user?.role;
+  useEffect(() => {
+    let cancelled = false;
+    const fetchCounts = async () => {
+      try {
+        const { data } = await api.get('/api/products', { params: { limit: 1000 } });
+        if (cancelled) return;
+        const counts = {};
+        (data.data || []).forEach((p) => {
+          if (p.category) counts[p.category] = (counts[p.category] || 0) + 1;
+        });
+        setCategoryCounts(counts);
+      } catch (e) {}
+    };
+    fetchCounts();
+    return () => { cancelled = true; };
+  }, [api]);
 
   const goToProduct = (id) => {
     navigate(`/products/${id}`);
@@ -99,8 +117,8 @@ export default function Home() {
                 onClick={() => navigate(`/products?category=${encodeURIComponent(c)}`)}
                 className="flex flex-col items-center gap-2 rounded-xl border border-gray-200 bg-white p-3 text-center transition hover:shadow-md hover:border-blue-400"
               >
-                {Icon && <Icon size={24} className="text-red-500" />}
-                <span className="text-xs font-medium text-gray-700">{c}</span>
+                {Icon && <Icon size={32} className="text-red-500" />}
+                <span className="text-xs font-medium text-gray-700">{c} <span className="text-green-600">({categoryCounts[c] || 0})</span></span>
               </button>
             );
           })}

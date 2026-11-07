@@ -166,9 +166,12 @@ export default function Products() {
                   <div className="p-4">
                     {p.seller && (
                       <div className="mb-1 flex items-center gap-1.5 text-xs text-gray-500">
-                        <span className="truncate">
-                          {p.seller.storeName || p.seller.name || 'Seller'}
-                        </span>
+                         <span
+                           className="truncate cursor-pointer text-blue-600 hover:underline"
+                           onClick={(e) => { e.stopPropagation(); navigate(`/seller/${p.seller._id}`); }}
+                         >
+                           {p.seller.storeName || p.seller.name || 'Seller'}
+                         </span>
                         {p.seller.isVerified && (
                           <span
                             title="Verified seller"

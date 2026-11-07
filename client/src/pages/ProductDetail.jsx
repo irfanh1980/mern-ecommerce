@@ -70,9 +70,9 @@ export default function ProductDetail() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <Link to="/" className="mb-4 inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
-        <span>&larr;</span> Back to home
-      </Link>
+      <button onClick={() => navigate(-1)} className="mb-4 inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
+        <span>&larr;</span> Back
+      </button>
 
       <nav aria-label="Breadcrumb" className="px-6 py-2 text-sm text-gray-500">
         <ol className="flex flex-wrap items-center gap-1">
@@ -106,7 +106,12 @@ export default function ProductDetail() {
           <div>
             {product.seller && (
               <div className="flex items-center gap-2 mb-2 text-xs text-gray-500">
-                <span>{product.seller.storeName || product.seller.name || 'Seller'}</span>
+                <span
+                  className="font-medium text-blue-600 hover:underline cursor-pointer"
+                  onClick={() => navigate(`/seller/${product.seller._id}`)}
+                >
+                  {product.seller.storeName || product.seller.name || 'Seller'}
+                </span>
                 {product.seller.isVerified && (
                   <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-700">
                     <span aria-hidden="true">✓</span> Verified

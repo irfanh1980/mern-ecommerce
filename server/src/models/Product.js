@@ -49,10 +49,10 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    subcategory: {
+    verificationStatus: {
       type: String,
-      trim: true,
-      default: '',
+      enum: ['PENDING', 'APPROVED', 'REJECTED'],
+      default: 'PENDING',
     },
     images: {
       type: [

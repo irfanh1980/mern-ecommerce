@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react';
+import { Country, City } from 'country-state-city';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -25,7 +26,7 @@ const COUNTRY_CODES = [
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', phone: '', countryCode: '+1', countryName: '🇺🇸 United States', password: '', confirmPassword: '', role: 'Buyer' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', countryCode: '+1', countryName: '🇺🇸 United States', password: '', confirmPassword: '', role: 'Buyer', gender: 'Prefer not to say', dob: '' });
   const [error, setError] = useState('');
   const [registered, setRegistered] = useState(false);
   const [notice, setNotice] = useState('');
@@ -50,7 +51,7 @@ export default function Register() {
         phone: `${form.countryCode} ${form.phone}`.trim(),
       };
       const result = await register(payload);
-      setForm({ name: '', email: '', phone: '', countryCode: '+1', countryName: '🇺🇸 United States (+1)', password: '', confirmPassword: '', role: 'Buyer' });
+      setForm({ name: '', email: '', phone: '', countryCode: '+1', countryName: '🇺🇸 United States (+1)', password: '', confirmPassword: '', role: 'Buyer', gender: 'Prefer not to say', address: { street: '', zipCode: '', city: '', country: '', countryCode: '' } });
       setNotice(
         result?.message ||
           'Account created. Check your inbox to verify your email address.'
@@ -119,6 +120,10 @@ export default function Register() {
         <div>
           <label htmlFor="register-name" className="mb-1 block text-sm font-medium">Name</label>
           <input id="register-name" name="name" value={form.name} onChange={handleChange} required className="w-full rounded border px-3 py-2" />
+        </div>
+        <div>
+          <label htmlFor="register-dob" className="mb-1 block text-sm font-medium">Date of birth</label>
+          <input id="register-dob" name="dob" type="date" value={form.dob} onChange={handleChange} className="w-full rounded border px-3 py-2" />
         </div>
         <div>
           <label htmlFor="register-email" className="mb-1 block text-sm font-medium">Email</label>
@@ -217,6 +222,21 @@ export default function Register() {
             <option value="Buyer">Buyer</option>
             <option value="Seller">Seller</option>
             <option value="Both">Both (Buyer & Seller)</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="register-gender" className="mb-1 block text-sm font-medium">Gender</label>
+          <select
+            id="register-gender"
+            name="gender"
+            value={form.gender}
+            onChange={handleChange}
+            className="w-full rounded border border-gray-300 px-3 py-2"
+          >
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
           </select>
         </div>
         <button type="submit" disabled={loading} className="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50">

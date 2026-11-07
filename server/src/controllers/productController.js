@@ -12,6 +12,15 @@ const destroyCloudinaryImages = async (images) => {
   );
 };
 
+export const verifyProduct = asyncHandler(async (req, res) => {
+  const { status } = req.body;
+  if (!['PENDING', 'APPROVED', 'REJECTED'].includes(status)) {
+    return res.status(400).json({ success: false, message: 'Invalid status' });
+  }
+  const product = await Product.findByIdAndUpdate(req.params.id, { verificationStatus: status }, { new: true });
+  if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+  res.status(200).json({ success: true, data: product });
+});
 export const getProducts = asyncHandler(async (req, res) => {
   const {
     page = 1,

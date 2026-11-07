@@ -104,8 +104,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const isSeller = user?.role === 'Seller' || user?.role === 'Both';
 
-  const [products, setProducts] = useState([]);
+  const [recentUsers, setRecentUsers] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -162,6 +163,12 @@ export default function Dashboard() {
         (p) => p.seller?._id === user?._id || p.seller === user?._id
       );
       setProducts(myProducts);
+      if (user?.role?.toLowerCase() === 'admin') {
+        try {
+          const { data: udata } = await api.get('/api/admin/users', { params: { limit: 5 } });
+          setRecentUsers(udata.data || udata.users || []);
+        } catch (e) {}
+      }
     } catch (err) {
       setAlert(err.response?.data?.message || 'Failed to load products');
     } finally {
@@ -276,7 +283,8 @@ export default function Dashboard() {
       const { data } = await api.put('/api/auth/profile', {
         name: profileForm.name,
         phone: `${finalCode} ${profileForm.phone}`.trim(),
-        avatar: profileForm.avatar,
+         avatar: profileForm.avatar,
+         bio: profileForm.bio,
         role: profileForm.role,
         address: {
           street: profileForm.street,
@@ -324,6 +332,7 @@ export default function Dashboard() {
 
     setProfileForm({
       name: user?.name || '',
+      bio: user?.bio || '',
       phone: extractedNumber,
       avatar: user?.avatar || '',
       countryCode: isCustomCode ? 'Other' : extractedCode,
@@ -522,9 +531,24 @@ export default function Dashboard() {
 
             {/* Available Products */}
             {activeView === 'overview' && (
-              <section className="mt-8">
-                <div className="mb-6 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">Available Products</h2>
+              <>
+                <section className="mt-8">
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+                  </div>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    {recentUsers.slice(0, 1).map((u) => (
+                      <li key={u._id}>New user registered: <Link to={`/seller/${u._id}`} className="text-blue-600 hover:underline">{u.name}</Link></li>
+                    ))}
+                    {products.slice(0, 1).map((p) => (
+                      <li key={p._id}>New product published: {p.title}</li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="mt-8">
+                  <div className="mb-6 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-gray-900">Available Products</h2>
                   {user?.role?.toLowerCase() === 'admin' && (
                     <Link to="/admin" className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700">
                       Admin Panel
@@ -580,6 +604,7 @@ export default function Dashboard() {
                   </div>
                 )}
               </section>
+              </>
             )}
 
             {/* My Products */}
@@ -630,20 +655,22 @@ export default function Dashboard() {
                               key={p._id}
                               className="flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                             >
-                              <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
-                                {p.images?.[0] ? (
-                                  <img
-                                    src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
-                                    alt={p.title}
-                                    className="w-full h-full object-contain"
-                                  />
-                                ) : (
-                                  <div className="flex h-full items-center justify-center rounded bg-gray-100 text-xs text-gray-400">
-                                    No image
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-1">
+                               <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
+                                 <Link to={`/products/${p._id}`} className="block">
+                                   {p.images?.[0] ? (
+                                     <img
+                                       src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
+                                       alt={p.title}
+                                       className="w-full h-full object-contain"
+                                     />
+                                   ) : (
+                                     <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
+                                       No image
+                                     </div>
+                                   )}
+                                  </Link>
+                                </div>
+                               <div className="flex-1">
                                 <h3 className="line-clamp-1 font-medium text-gray-900">{p.title}</h3>
                                 <p className="mt-1 text-sm text-gray-600">
                                   {formatPrice(p.price, p.currency)} · Stock: {p.inventory}
@@ -822,12 +849,21 @@ export default function Dashboard() {
                         value={profileForm.name}
                         onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
                         className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="profile-role" className="mb-1.5 block text-sm font-medium text-gray-700">
-                        Account type
-                      </label>
+                       />
+                       <label htmlFor="profile-bio" className="mb-1.5 block text-sm font-medium text-gray-700">
+                         About you
+                       </label>
+                       <textarea
+                         id="profile-bio"
+                         value={profileForm.bio}
+                         onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                         maxLength={500}
+                         className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                         placeholder="Tell us about yourself..."
+                       />
+                       <label htmlFor="profile-role" className="mb-1.5 block text-sm font-medium text-gray-700">
+                         Account type
+                       </label>
                       <select
                         id="profile-role"
                         value={profileForm.role}

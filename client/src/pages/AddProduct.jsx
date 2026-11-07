@@ -35,15 +35,15 @@ export default function AddProduct() {
   });
 
   const onInvalid = () => {
-    setAlert('Please fix the highlighted errors.');
+    setMessage('Please fix the highlighted errors.');
   };
 
   const onValid = async (values) => {
-    setAlert('');
+    setMessage('');
     setMessage('');
 
     if (imageUrls.length === 0) {
-      setAlert('Please upload at least one product image.');
+      setMessage('Please upload at least one product image.');
       return;
     }
 
@@ -60,7 +60,7 @@ export default function AddProduct() {
       });
 
       setMessage('Product created successfully');
-      navigate('/dashboard');
+      navigate('/seller/dashboard');
       reset({
         title: '',
         description: '',
@@ -80,9 +80,9 @@ export default function AddProduct() {
         Object.entries(fieldErrors).forEach(([field, message]) => {
           setFieldError(field, { type: 'server', message });
         });
-        setAlert('Please fix the errors above.');
+        setMessage('Please fix the errors above.');
       } else {
-        setAlert(err.response?.data?.message || 'Failed to create product.');
+        setMessage(err.response?.data?.message || 'Failed to create product.');
       }
     } finally {
       setSaving(false);
@@ -129,14 +129,14 @@ export default function AddProduct() {
          </div>
        </div>
 
-       <ImageUpload
-            key="new"
-            label="Product images"
-            multiple
-            initialUrls={imageUrls}
-            onChange={() => {}}
-            onImagesChange={setImageUrls}
-          />
+        <ImageUpload
+             key="new"
+             label="Product images"
+             multiple
+             initialUrls={imageUrls}
+             onChange={() => {}}
+             onImagesChange={setImageUrls}
+           />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">

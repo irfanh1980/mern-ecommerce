@@ -11,7 +11,7 @@ const TABS = [
 
 export default function AdminDashboard() {
   const { api, user } = useAuth();
-  const [tab, setTab] = useState('stats');
+  const [tab, setTab] = useState(new URLSearchParams(window.location.search).get('tab') || 'stats');
   const [loading, setLoading] = useState(true);
 
   // Stats
@@ -246,6 +246,7 @@ export default function AdminDashboard() {
                     <th className="px-3 py-2 text-left font-medium text-gray-700">Phone</th>
                     <th className="px-3 py-2 text-left font-medium text-gray-700">Role</th>
                     <th className="px-3 py-2 text-left font-medium text-gray-700">Verified seller</th>
+                    <th className="px-3 py-2 text-left font-medium text-gray-700">Listings</th>
                     <th className="px-3 py-2 text-left font-medium text-gray-700">Email verified</th>
                     <th className="px-3 py-2 text-left font-medium text-gray-700">Joined</th>
                     <th className="px-3 py-2 text-right font-medium text-gray-700">Actions</th>
@@ -254,7 +255,7 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-gray-100">
                   {users.map((u) => (
                     <tr key={u._id} className="hover:bg-gray-50">
-                      <td className="px-3 py-2">{u.name}</td>
+                      <td className="px-3 py-2">                        <Link to={`/seller/${u._id}`} className="text-blue-600 hover:underline">{u.name}</Link></td>
                       <td className="px-3 py-2">{u.email}</td>
                       <td className="px-3 py-2">{u.phone || '-'}</td>
                       <td className="px-3 py-2">
@@ -267,6 +268,7 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td className="px-3 py-2">{u.isVerified ? 'Yes' : 'No'}</td>
+                      <td className="px-3 py-2">{u.listingCount ?? 0}</td>
                       <td className="px-3 py-2">{u.isEmailVerified ? 'Yes' : 'No'}</td>
                       <td className="px-3 py-2 text-gray-500">{new Date(u.createdAt).toLocaleDateString()}</td>
                       <td className="px-3 py-2 text-right">
@@ -487,7 +489,7 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-gray-100">
                   {products.map((p) => (
                     <tr key={p._id} className="hover:bg-gray-50">
-                      <td className="px-3 py-2">{p.title}</td>
+                      <td className="px-3 py-2">                      <Link to={`/products/${p._id}`} className="text-blue-600 hover:underline">{p.title}</Link></td>
                       <td className="px-3 py-2 capitalize">{p.category}</td>
                       <td className="px-3 py-2">${p.price.toFixed(2)}</td>
                       <td className="px-3 py-2">{p.seller?.name || 'Unknown'}</td>
