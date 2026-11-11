@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
-import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
+import ImageGallery from '../components/ui/ImageGallery.jsx';
 
 export default function ProductDetail() {
   const { api, user } = useAuth();
@@ -84,21 +84,7 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Images */}
         <div className="space-y-4">
-          <div className="aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-            <img
-              src={(product.images?.[0]?.url ?? product.images?.[0]) || 'https://placehold.co/600x450?text=No+Image'}
-              alt={product.title}
-               className="w-full h-full object-contain"
-            />
-          </div>
-          {product.images?.slice(1).map((img, i) => (
-            <div
-              key={i}
-              className="aspect-[4/3] rounded-xl overflow-hidden bg-gray-100 border border-gray-200 cursor-pointer"
-            >
-               <img src={img.url ?? img} alt="" className="w-full h-full object-contain opacity-50 hover:opacity-100 transition-opacity" />
-            </div>
-          ))}
+          <ImageGallery images={product.images || []} />
         </div>
 
         {/* Details */}

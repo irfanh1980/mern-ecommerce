@@ -8,18 +8,42 @@ export default function ImageManager({ onChange }) {
   const updateParent = (next) => {
     const sorted = next.map((it, idx) => ({ ...it, order: idx }));
     setItems(sorted);
-    onChange?.(sorted.map(({ id, file, previewUrl, caption, order }) => ({ file, previewUrl, caption, order })));
+    onChange?.(sorted.map(({ file, previewUrl, public_id, caption, order }) => ({ file, previewUrl, public_id, caption, order })));
   };
 
-  const addFiles = (files) => {
-    const newItems = Array.from(files).map((file) => ({
-      id: `${Date.now()}-${Math.random()}`,
-      file,
-      previewUrl: URL.createObjectURL(file),
-      caption: '',
-      order: 0,
-    }));
-    updateParent([...items, ...newItems]);
+  const addFiles = async (files) => {
+    const token = localStorage.getItem('token');
+    const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const formData = new FormData();
+    Array.from(files).forEach((f) => formData.append('images', f));
+    try {
+      const res = await fetch(`${API}/api/uploads`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      const data = await res.json();
+      const uploaded = data?.data?.images || [];
+      const newItems = uploaded.map((img, idx) => ({
+        id: `${Date.now()}-${idx}`,
+        file: null,
+        previewUrl: img.url,
+        public_id: img.public_id || '',
+        caption: '',
+        order: 0,
+      }));
+      updateParent([...items, ...newItems]);
+    } catch (e) {
+      // fallback local preview
+      const newItems = Array.from(files).map((file) => ({
+        id: `${Date.now()}-${Math.random()}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+        caption: '',
+        order: 0,
+      }));
+      updateParent([...items, ...newItems]);
+    }
   };
 
   const move = (index, dir) => {

@@ -15,9 +15,9 @@ const router = Router();
 
 router.get('/', getProducts);
 router.get('/:id', getProductById);
-router.post('/', protect, restrictTo('Seller'), validateMiddleware(productBodySchema), createProduct);
-router.put('/:id', protect, restrictTo('Seller'), validateMiddleware(productUpdateSchema), updateProduct);
+router.post('/', protect, restrictTo('Seller', 'Admin'), validateMiddleware(productBodySchema), createProduct);
+router.put('/:id', protect, restrictTo('Seller', 'Admin'), validateMiddleware(productUpdateSchema), updateProduct);
 router.put('/:id/verify', protect, restrictTo('Admin'), verifyProduct);
-router.delete('/:id', protect, restrictTo('Seller'), deleteProduct);
+router.delete('/:id', protect, restrictTo('Seller', 'Admin'), deleteProduct);
 
 export default router;

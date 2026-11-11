@@ -28,6 +28,10 @@ export const getProducts = asyncHandler(async (req, res) => {
     category,
     search,
     sort = '-createdAt',
+    canBeSent,
+    freeShipping,
+    condition,
+    listingType,
   } = req.query;
 
   const filter = { isActive: true };
@@ -42,6 +46,10 @@ export const getProducts = asyncHandler(async (req, res) => {
     ];
   }
   if (req.query.seller) filter.seller = req.query.seller;
+  if (canBeSent === 'true') filter.canBeSent = true;
+  if (freeShipping === 'true') filter.freeShipping = true;
+  if (condition) filter.condition = condition;
+  if (listingType) filter.listingType = listingType;
 
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.max(1, Math.min(parseInt(limit, 10) || 12, 100));

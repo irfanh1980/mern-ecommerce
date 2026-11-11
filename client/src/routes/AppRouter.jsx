@@ -50,22 +50,22 @@ export default function AppRouter() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/dashboard/add-product"
-            element={
-              <ProtectedRoute roles={['Seller', 'Both']}>
-                <AddProduct />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/seller/dashboard"
-            element={
-              <ProtectedRoute roles={['Seller', 'Both']}>
-                <SellerDashboard />
-              </ProtectedRoute>
-            }
-          />
+<Route
+              path="/dashboard/add-product"
+              element={
+                <ProtectedRoute roles={['Seller', 'Both', 'Admin']}>
+                  <AddProduct />
+                </ProtectedRoute>
+              }
+            />
+<Route
+              path="/seller/dashboard"
+              element={
+                <ProtectedRoute roles={['Seller', 'Both', 'Admin']}>
+                  <SellerDashboard />
+                </ProtectedRoute>
+              }
+            />
           <Route
             path="/admin"
             element={

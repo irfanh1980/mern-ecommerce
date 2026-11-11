@@ -49,10 +49,20 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    subcategory: {
+      type: String,
+      trim: true,
+    },
     verificationStatus: {
       type: String,
       enum: ['PENDING', 'APPROVED', 'REJECTED'],
       default: 'PENDING',
+    },
+    condition: {
+      type: String,
+      enum: ['brand_new', 'like_new', 'used_good', 'used_wear', 'needs_repair'],
+      required: [true, 'Condition is required'],
+      default: 'used_good',
     },
     images: {
       type: [
@@ -70,13 +80,26 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    canBeSent: {
+      type: Boolean,
+      default: false,
+    },
+    freeShipping: {
+      type: Boolean,
+      default: false,
+    },
+    listingType: {
+      type: String,
+      enum: ['selling', 'given'],
+      default: 'selling',
+    },
   },
   { timestamps: true }
 );
 
 productSchema.index({ seller: 1 });
 productSchema.index({ user: 1 });
-productSchema.index({ category: 1 });
+productSchema.index({ category: 1, subcategory: 1 });
 productSchema.index({ title: 'text', description: 'text' });
 
 export default mongoose.model('Product', productSchema);

@@ -1,18 +1,20 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
+import { SUBCATEGORIES } from '../constants/categories.js';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productSchema, CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '../validators/productSchema.js';
-import ImageUpload from '../components/ui/ImageUpload.jsx';
+import ImageManager from '../components/ui/ImageManager.jsx';
 
 export default function AddProduct() {
+  const { id } = useParams();
   const { api } = useAuth();
   const navigate = useNavigate();
   const [transactionType, setTransactionType] = useState('given');
   const [message, setMessage] = useState('');
   const [saving, setSaving] = useState(false);
-  const [imageUrls, setImageUrls] = useState([]);
+  const [images, setImages] = useState([]);
 
   const {
     register,
@@ -38,25 +40,51 @@ export default function AddProduct() {
     setMessage('Please fix the highlighted errors.');
   };
 
+  useEffect(() => {
+    if (!id) return;
+    const load = async () => {
+      try {
+        const { data } = await api.get(`/api/products/${id}`);
+        const p = data.data;
+        reset({
+          title: p.title,
+          description: p.description,
+          price: p.price,
+          currency: p.currency,
+          inventory: p.inventory,
+          category: p.category,
+          subcategory: p.subcategory || '',
+          condition: p.condition || 'used_good',
+        });
+        setImages(p.images || []);
+      } catch (e) {}
+    };
+    load();
+  }, [id, api, reset]);
+
   const onValid = async (values) => {
     setMessage('');
     setMessage('');
 
-    if (imageUrls.length === 0) {
+    if (images.length === 0) {
       setMessage('Please upload at least one product image.');
       return;
     }
 
     setSaving(true);
     try {
-      const { data } = await api.post('/api/products', {
+      const method = id ? 'put' : 'post';
+      const url = id ? `/api/products/${id}` : '/api/products';
+      const { data } = await api[method](url, {
         title: values.title.trim(),
         description: values.description.trim(),
         price: values.price,
         currency: values.currency,
         inventory: values.inventory,
         category: values.category,
-        images: imageUrls,
+        subcategory: values.subcategory,
+        condition: values.condition,
+        images: images.map((img) => ({ url: img.previewUrl, public_id: img.public_id || '', caption: img.caption || '' })),
       });
 
       setMessage('Product created successfully');
@@ -67,9 +95,11 @@ export default function AddProduct() {
         price: '',
         currency: 'SEK',
         inventory: '',
-        category: '',
+      category: '',
+      subcategory: '',
+      condition: 'used_good',
       });
-      setImageUrls([]);
+      setImages([]);
     } catch (err) {
       const backendErrors = err.response?.data?.errors;
       if (backendErrors?.length) {
@@ -96,7 +126,7 @@ export default function AddProduct() {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          onClick={() => {}}
+          onClick={() => navigate('/seller/dashboard')}
           className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
         >
           <span className="mr-2">&larr;</span> Back to dashboard
@@ -129,14 +159,7 @@ export default function AddProduct() {
          </div>
        </div>
 
-        <ImageUpload
-             key="new"
-             label="Product images"
-             multiple
-             initialUrls={imageUrls}
-             onChange={() => {}}
-             onImagesChange={setImageUrls}
-           />
+        <ImageManager onChange={setImages} />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
@@ -241,11 +264,44 @@ export default function AddProduct() {
                     {c.charAt(0).toUpperCase() + c.slice(1)}
                   </option>
                 ))}
-              </select>
-              {errors.category && (
+               </select>
+               {errors.category && (
                 <p className="mt-1.5 text-sm text-red-600">{errors.category.message}</p>
-              )}
-            </div>
+               )}
+             </div>
+             {watch('category') && (
+             <div className="sm:col-span-2">
+               <label htmlFor="add-product-subcategory" className="mb-1.5 block text-sm font-medium text-gray-700">
+                 Subcategory
+               </label>
+               <select
+                 id="add-product-subcategory"
+                 {...register('subcategory')}
+                 className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+               >
+                 <option value="">Select a subcategory</option>
+                 {(SUBCATEGORIES[watch('category')] || []).map((s) => (
+                   <option key={s} value={s}>{s}</option>
+                 ))}
+               </select>
+             </div>
+             )}
+              <div className="sm:col-span-2">
+                <label htmlFor="add-product-condition" className="mb-1.5 block text-sm font-medium text-gray-700">
+                  Condition
+                </label>
+               <select
+                 id="add-product-condition"
+                 {...register('condition')}
+                 className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+               >
+                 <option value="brand_new">Brand new - unopened/with price tag</option>
+                 <option value="like_new">Like new - no visible signs of wear</option>
+                 <option value="used_good">Used - but in good condition</option>
+                 <option value="used_wear">Used - with visible signs of wear</option>
+                 <option value="needs_repair">Needs repair</option>
+               </select>
+             </div>
           </div>
 
           <div className="pt-4 border-t border-gray-100">

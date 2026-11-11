@@ -102,12 +102,12 @@ const navItems = [
 export default function Dashboard() {
   const { api, user, setUser } = useAuth();
   const navigate = useNavigate();
-  const isSeller = user?.role === 'Seller' || user?.role === 'Both';
+  const isSeller = user?.role === 'Seller' || user?.role === 'Both' || user?.role === 'Admin';
 
   const [recentUsers, setRecentUsers] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [overviewProducts, setOverviewProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
 
@@ -155,13 +155,9 @@ export default function Dashboard() {
     setProductsLoading(true);
     try {
       const { data } = await api.get('/api/products', {
-        params: { limit: 100 },
+        params: { seller: userId, limit: 100 },
       });
-      const all = data.data || [];
-      setAllProducts(all);
-      const myProducts = all.filter(
-        (p) => p.seller?._id === user?._id || p.seller === user?._id
-      );
+      const myProducts = data.data || [];
       setProducts(myProducts);
       if (user?.role?.toLowerCase() === 'admin') {
         try {
@@ -173,6 +169,17 @@ export default function Dashboard() {
       setAlert(err.response?.data?.message || 'Failed to load products');
     } finally {
       setProductsLoading(false);
+    }
+  };
+
+  const fetchOverviewProducts = async () => {
+    try {
+      const { data } = await api.get('/api/products', {
+        params: { limit: 100, isActive: 'true' },
+      });
+      setOverviewProducts(data.data || []);
+    } catch (err) {
+      // ignore
     }
   };
 
@@ -191,6 +198,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!userId) return;
     fetchProducts();
+    fetchOverviewProducts();
     fetchOrders();
   }, [userId]);
 
@@ -386,7 +394,7 @@ export default function Dashboard() {
     </div>
   );
 
-  const availableProducts = allProducts.filter((p) => p.seller?._id !== user?._id && p.seller !== user?._id);
+  const availableProducts = overviewProducts.filter((p) => p.seller?._id !== user?._id && p.seller !== user?._id);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -514,7 +522,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex gap-3">
                       {isSeller && (
-                        <div className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center shadow-sm">
+                        <div onClick={() => navigate('/seller/dashboard')} className="cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-3 text-center shadow-sm">
                           <p className="text-lg font-semibold text-blue-600">{products.length}</p>
                           <p className="text-xs text-gray-500">Products</p>
                         </div>

@@ -16,6 +16,19 @@ import { MAIN_CATEGORIES } from '../constants/categories.js';
 
 export const CATEGORIES = MAIN_CATEGORIES;
 
+export const CONDITIONS = [
+  { value: 'brand_new', label: 'Brand new' },
+  { value: 'like_new', label: 'Like new' },
+  { value: 'used_good', label: 'Used - Good' },
+  { value: 'used_wear', label: 'Used - Wear' },
+  { value: 'needs_repair', label: 'Needs repair' },
+];
+
+export const LISTING_TYPES = [
+  { value: 'selling', label: 'Selling' },
+  { value: 'given', label: 'Given away' },
+];
+
 export const productSchema = z.object({
   title: z
     .string()
@@ -55,4 +68,10 @@ export const productSchema = z.object({
     required_error: 'Please select a category',
   }),
   subcategory: z.string().optional().default(''),
+  condition: z.enum(CONDITIONS.map(c => c.value), {
+    required_error: 'Please select a condition',
+  }).default('used_good'),
+  canBeSent: z.boolean().optional().default(false),
+  freeShipping: z.boolean().optional().default(false),
+  listingType: z.enum(LISTING_TYPES.map(t => t.value)).default('selling'),
 });

@@ -4,6 +4,19 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { MAIN_CATEGORIES as CATEGORIES } from '../constants/categories.js';
 
+const CONDITIONS = [
+  { value: 'brand_new', label: 'Brand new' },
+  { value: 'like_new', label: 'Like new' },
+  { value: 'used_good', label: 'Used - Good' },
+  { value: 'used_wear', label: 'Used - Wear' },
+  { value: 'needs_repair', label: 'Needs repair' },
+];
+
+const LISTING_TYPES = [
+  { value: 'selling', label: 'Selling' },
+  { value: 'given', label: 'Given away' },
+];
+
 export default function Products() {
   const { api, user } = useAuth();
   const navigate = useNavigate();
@@ -18,6 +31,46 @@ export default function Products() {
   const [search, setSearch] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [condition, setCondition] = useState(searchParams.get('condition') || '');
+  const [listingType, setListingType] = useState(searchParams.get('listingType') || '');
+  const [canBeSent, setCanBeSent] = useState(false);
+  const [freeShipping, setFreeShipping] = useState(false);
+  const [deliveryOpen, setDeliveryOpen] = useState(false);
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [conditionOpen, setConditionOpen] = useState(false);
+  const [listingTypeOpen, setListingTypeOpen] = useState(false);
+
+  const priceMin = useMemo(() => products.length ? Math.min(...products.map(p => p.price), 0) : 0, [products]);
+  const priceMax = useMemo(() => products.length ? Math.max(...products.map(p => p.price), 30000) : 30000, [products]);
+  const currencies = useMemo(() => [...new Set(products.map(p => p.currency || 'SEK'))], [products]);
+  const currencyLabel = currencies.length === 1 ? currencies[0] : 'mixed';
+  const currencySymbol = currencyLabel === 'SEK' ? 'kr' : currencyLabel === 'USD' ? '$' : currencyLabel === 'EUR' ? '€' : currencyLabel;
+  const sliderMin = minPrice === '' ? priceMin : Number(minPrice);
+  const sliderMax = maxPrice === '' ? priceMax : Number(maxPrice);
+  const range = priceMax - priceMin;
+  const minPercent = range > 0 ? ((sliderMin - priceMin) / range) * 100 : 0;
+  const maxPercent = range > 0 ? ((sliderMax - priceMin) / range) * 100 : 100;
+
+  const handleMinChange = (value) => {
+    const num = Number(value);
+    if (isNaN(num) || num <= sliderMax) setMinPrice(value === '' ? '' : String(Math.max(priceMin, Math.min(num, sliderMax))));
+  };
+  const handleMaxChange = (value) => {
+    const num = Number(value);
+    if (isNaN(num) || num >= sliderMin) setMaxPrice(value === '' ? '' : String(Math.min(priceMax, Math.max(num, sliderMin))));
+  };
+  const handleSliderMinChange = (percent) => {
+    if (range === 0) return;
+    const value = Math.round(priceMin + (percent / 100) * range);
+    setMinPrice(String(Math.max(priceMin, Math.min(value, sliderMax))));
+    setPage(1);
+  };
+  const handleSliderMaxChange = (percent) => {
+    if (range === 0) return;
+    const value = Math.round(priceMin + (percent / 100) * range);
+    setMaxPrice(String(Math.min(priceMax, Math.max(value, sliderMin))));
+    setPage(1);
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 400);
@@ -33,6 +86,10 @@ export default function Products() {
         const params = { page, limit: 12 };
         if (category) params.category = category;
         if (search) params.search = search;
+        if (condition) params.condition = condition;
+        if (listingType) params.listingType = listingType;
+        if (canBeSent) params.canBeSent = 'true';
+        if (freeShipping) params.freeShipping = 'true';
         const { data } = await api.get('/api/products', { params });
         if (cancelled) return;
         setProducts(data.data);
@@ -47,7 +104,7 @@ export default function Products() {
     return () => {
       cancelled = true;
     };
-  }, [api, page, category, search]);
+  }, [api, page, category, search, condition, listingType, canBeSent, freeShipping]);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -62,6 +119,51 @@ export default function Products() {
       <aside className="md:w-64 shrink-0">
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-lg font-semibold">Filters</h2>
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={() => setDeliveryOpen(!deliveryOpen)}
+              className="flex items-center justify-between w-full mb-2 text-sm font-medium text-gray-900 hover:text-gray-700"
+            >
+              <span>Delivery options</span>
+              <svg
+                className={`w-4 h-4 text-gray-500 transition-transform ${deliveryOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {deliveryOpen && (
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={canBeSent}
+                    onChange={(e) => {
+                      setCanBeSent(e.target.checked);
+                      setPage(1);
+                    }}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  Can be sent
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={freeShipping}
+                    onChange={(e) => {
+                      setFreeShipping(e.target.checked);
+                      setPage(1);
+                    }}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  Free shipping
+                </label>
+              </div>
+            )}
+          </div>
           <div className="mb-4">
             <label htmlFor="filter-search" className="mb-1 block text-sm font-medium">Search</label>
             <input
@@ -96,32 +198,196 @@ export default function Products() {
             </select>
           </div>
           <div className="mb-4">
-            <label htmlFor="filter-min-price" className="mb-1 block text-sm font-medium">Price Range</label>
-            <div className="flex gap-2">
-              <input
-                id="filter-min-price"
-                type="number"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                placeholder="Min"
-                className="w-1/2 rounded border px-2 py-2 text-sm"
-              />
-              <input
-                id="filter-max-price"
-                aria-label="Maximum price"
-                type="number"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                placeholder="Max"
-                className="w-1/2 rounded border px-2 py-2 text-sm"
-              />
-            </div>
+            <button
+              type="button"
+              onClick={() => setConditionOpen(!conditionOpen)}
+              className="flex items-center justify-between w-full mb-2 text-sm font-medium text-gray-900 hover:text-gray-700"
+            >
+              <span>Condition</span>
+              <svg
+                className={`w-4 h-4 text-gray-500 transition-transform ${conditionOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {conditionOpen && (
+              <select
+                value={condition}
+                onChange={(e) => {
+                  setCondition(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full rounded border px-3 py-2 text-sm"
+              >
+                <option value="">All</option>
+                {CONDITIONS.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={() => setListingTypeOpen(!listingTypeOpen)}
+              className="flex items-center justify-between w-full mb-2 text-sm font-medium text-gray-900 hover:text-gray-700"
+            >
+              <span>Type of ad</span>
+              <svg
+                className={`w-4 h-4 text-gray-500 transition-transform ${listingTypeOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {listingTypeOpen && (
+              <select
+                value={listingType}
+                onChange={(e) => {
+                  setListingType(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full rounded border px-3 py-2 text-sm"
+              >
+                <option value="">All</option>
+                {LISTING_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          <div className="mb-4">
+            <button
+              type="button"
+              onClick={() => setPriceOpen(!priceOpen)}
+              className="flex items-center justify-between w-full mb-2 text-sm font-medium text-gray-900 hover:text-gray-700"
+            >
+              <span>Price</span>
+              <svg
+                className={`w-4 h-4 text-gray-500 transition-transform ${priceOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {priceOpen && (
+              <div>
+                <div className="relative h-6 mb-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full h-1 bg-gray-200 rounded-full" />
+                  </div>
+                  <div
+                    className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-blue-600 rounded-full"
+                    style={{ left: `${minPercent}%`, width: `${maxPercent - minPercent}%` }}
+                  />
+                  <button
+                    type="button"
+                    role="slider"
+                    aria-label="Minimum price"
+                    aria-valuemin={priceMin}
+                    aria-valuemax={priceMax}
+                    aria-valuenow={sliderMin}
+                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-blue-600 shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 z-10"
+                    style={{ left: `calc(${minPercent}% - 8px)` }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      const sliderTrack = e.currentTarget.parentElement;
+                      const onMove = (me) => {
+                        const rect = sliderTrack.getBoundingClientRect();
+                        const percent = Math.max(0, Math.min(100, ((me.clientX - rect.left) / rect.width) * 100));
+                        handleSliderMinChange(percent);
+                      };
+                      const onUp = () => {
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onUp);
+                      };
+                      document.addEventListener('mousemove', onMove);
+                      document.addEventListener('mouseup', onUp);
+                    }}
+                  />
+                  <button
+                    type="button"
+                    role="slider"
+                    aria-label="Maximum price"
+                    aria-valuemin={priceMin}
+                    aria-valuemax={priceMax}
+                    aria-valuenow={sliderMax}
+                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white border-2 border-blue-600 shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 z-10"
+                    style={{ left: `calc(${maxPercent}% - 8px)` }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      const sliderTrack = e.currentTarget.parentElement;
+                      const onMove = (me) => {
+                        const rect = sliderTrack.getBoundingClientRect();
+                        const percent = Math.max(0, Math.min(100, ((me.clientX - rect.left) / rect.width) * 100));
+                        handleSliderMaxChange(percent);
+                      };
+                      const onUp = () => {
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onUp);
+                      };
+                      document.addEventListener('mousemove', onMove);
+                      document.addEventListener('mouseup', onUp);
+                    }}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 mb-3">
+                  <span>{priceMin} {currencySymbol}</span>
+                  <span>{priceMax.toLocaleString()} {currencyLabel}</span>
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-1/2">
+                    <label htmlFor="filter-min-price" className="mb-1 block text-xs text-gray-500">From {currencySymbol}</label>
+                    <input
+                      id="filter-min-price"
+                      type="number"
+                      value={minPrice}
+                      onChange={(e) => {
+                        handleMinChange(e.target.value);
+                        setPage(1);
+                      }}
+                      min={priceMin}
+                      max={sliderMax}
+                      className="w-full rounded border px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="w-1/2">
+                    <label htmlFor="filter-max-price" className="mb-1 block text-xs text-gray-500">To {currencySymbol}</label>
+                    <input
+                      id="filter-max-price"
+                      type="number"
+                      value={maxPrice}
+                      onChange={(e) => {
+                        handleMaxChange(e.target.value);
+                        setPage(1);
+                      }}
+                      min={sliderMin}
+                      max={priceMax}
+                      className="w-full rounded border px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <button
             onClick={() => {
               setCategory('');
               setSearchInput('');
               setSearch('');
+              setCondition('');
+              setListingType('');
               setMinPrice('');
               setMaxPrice('');
               setPage(1);

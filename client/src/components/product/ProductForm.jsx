@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { productSchema, CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '../../validators/productSchema.js';
+import { productSchema, CATEGORIES, CONDITIONS, LISTING_TYPES, CURRENCIES, CURRENCY_SYMBOLS } from '../../validators/productSchema.js';
 import ImageUpload from '../ui/ImageUpload.jsx';
 
 export default function ProductForm({
@@ -34,6 +34,10 @@ export default function ProductForm({
       currency: product?.currency || 'SEK',
       inventory: product?.inventory ?? '',
       category: product?.category || '',
+      condition: product?.condition || 'used_good',
+      listingType: product?.listingType || 'selling',
+      canBeSent: product?.canBeSent || false,
+      freeShipping: product?.freeShipping || false,
     },
   });
 
@@ -63,6 +67,9 @@ export default function ProductForm({
         currency: values.currency,
         inventory: values.inventory,
         category: values.category,
+        listingType: values.listingType,
+        canBeSent: values.canBeSent,
+        freeShipping: values.freeShipping,
         images: imageUrls,
       });
 
@@ -234,6 +241,50 @@ export default function ProductForm({
           {errors.category && (
             <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
           )}
+        </div>
+
+        <div className="md:col-span-2">
+          <label htmlFor="product-condition" className="mb-1 block text-sm font-medium">
+            Condition
+          </label>
+          <select
+            id="product-condition"
+            {...register('condition')}
+            className={`w-full rounded border px-3 py-2 ${
+              errors.condition ? 'border-red-500' : 'border-gray-300'
+            }`}
+          >
+            {CONDITIONS.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          {errors.condition && (
+            <p className="mt-1 text-sm text-red-600">{errors.condition.message}</p>
+          )}
+        </div>
+
+        <div className="md:col-span-2">
+          <p className="mb-2 font-bold text-gray-900">Delivery options</p>
+          <div className="flex flex-wrap gap-6">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                {...register('canBeSent')}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm">Can be sent</span>
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                {...register('freeShipping')}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm">Free shipping</span>
+            </label>
+          </div>
         </div>
       </div>
 
