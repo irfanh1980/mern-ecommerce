@@ -53,6 +53,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    productType: {
+      type: String,
+      trim: true,
+    },
     verificationStatus: {
       type: String,
       enum: ['PENDING', 'APPROVED', 'REJECTED'],

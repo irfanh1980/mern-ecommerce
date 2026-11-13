@@ -27,6 +27,14 @@ export const productBodySchema = z.object({
       }).int('Inventory must be a whole number').min(0, 'Inventory cannot be negative')
     ),
   category: categoryEnum,
+  subcategory: z.string().trim().optional().default(''),
+  productType: z.string().trim().optional().default(''),
+  condition: z
+    .enum(['brand_new', 'like_new', 'used_good', 'used_wear', 'needs_repair'])
+    .default('used_good'),
+  canBeSent: z.boolean().default(false),
+  freeShipping: z.boolean().default(false),
+  listingType: z.enum(['selling', 'given']).default('selling'),
   images: z
     .array(
       z.object({

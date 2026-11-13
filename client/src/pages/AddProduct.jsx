@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
-import { SUBCATEGORIES } from '../constants/categories.js';
+import { SUBCATEGORIES, PRODUCT_TYPES } from '../constants/categories.js';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productSchema, CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '../validators/productSchema.js';
@@ -22,6 +22,7 @@ export default function AddProduct() {
     formState: { errors, isInvalid, isSubmitting },
     reset,
     setError: setFieldError,
+    setValue,
     watch,
   } = useForm({
     resolver: zodResolver(productSchema),
@@ -33,6 +34,8 @@ export default function AddProduct() {
       currency: 'SEK',
       inventory: '',
       category: '',
+      subcategory: '',
+      productType: '',
     },
   });
 
@@ -54,6 +57,7 @@ export default function AddProduct() {
           inventory: p.inventory,
           category: p.category,
           subcategory: p.subcategory || '',
+          productType: p.productType || '',
           condition: p.condition || 'used_good',
         });
         setImages(p.images || []);
@@ -83,6 +87,7 @@ export default function AddProduct() {
         inventory: values.inventory,
         category: values.category,
         subcategory: values.subcategory,
+        productType: values.productType,
         condition: values.condition,
         images: images.map((img) => ({ url: img.previewUrl, public_id: img.public_id || '', caption: img.caption || '' })),
       });
@@ -97,6 +102,7 @@ export default function AddProduct() {
         inventory: '',
       category: '',
       subcategory: '',
+      productType: '',
       condition: 'used_good',
       });
       setImages([]);
@@ -269,23 +275,44 @@ export default function AddProduct() {
                 <p className="mt-1.5 text-sm text-red-600">{errors.category.message}</p>
                )}
              </div>
-             {watch('category') && (
-             <div className="sm:col-span-2">
-               <label htmlFor="add-product-subcategory" className="mb-1.5 block text-sm font-medium text-gray-700">
-                 Subcategory
-               </label>
-               <select
-                 id="add-product-subcategory"
-                 {...register('subcategory')}
-                 className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-               >
-                 <option value="">Select a subcategory</option>
-                 {(SUBCATEGORIES[watch('category')] || []).map((s) => (
-                   <option key={s} value={s}>{s}</option>
-                 ))}
-               </select>
-             </div>
-             )}
+{watch('category') && (
+              <div className="sm:col-span-2">
+                <label htmlFor="add-product-subcategory" className="mb-1.5 block text-sm font-medium text-gray-700">
+                  Subcategory
+                </label>
+                <select
+                  id="add-product-subcategory"
+                  {...register('subcategory')}
+                  onChange={(e) => {
+                    register('subcategory').onChange(e);
+                    setValue('productType', '');
+                  }}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="">Select a subcategory</option>
+                  {(SUBCATEGORIES[watch('category')] || []).map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              )}
+              {watch('subcategory') && (PRODUCT_TYPES[watch('category')]?.[watch('subcategory')] || []).length > 0 && (
+              <div className="sm:col-span-2">
+                <label htmlFor="add-product-type" className="mb-1.5 block text-sm font-medium text-gray-700">
+                  Product type
+                </label>
+                <select
+                  id="add-product-type"
+                  {...register('productType')}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-3 text-sm bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                >
+                  <option value="">Select a product type</option>
+                  {(PRODUCT_TYPES[watch('category')]?.[watch('subcategory')] || []).map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              )}
               <div className="sm:col-span-2">
                 <label htmlFor="add-product-condition" className="mb-1.5 block text-sm font-medium text-gray-700">
                   Condition

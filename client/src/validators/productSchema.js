@@ -12,9 +12,10 @@ export const CURRENCY_SYMBOLS = {
   EUR: '€',
 };
 
-import { MAIN_CATEGORIES } from '../constants/categories.js';
+import { MAIN_CATEGORIES, SUBCATEGORIES, PRODUCT_TYPES } from '../constants/categories.js';
 
 export const CATEGORIES = MAIN_CATEGORIES;
+export { SUBCATEGORIES, PRODUCT_TYPES };
 
 export const CONDITIONS = [
   { value: 'brand_new', label: 'Brand new' },
@@ -68,6 +69,7 @@ export const productSchema = z.object({
     required_error: 'Please select a category',
   }),
   subcategory: z.string().optional().default(''),
+  productType: z.string().optional().default(''),
   condition: z.enum(CONDITIONS.map(c => c.value), {
     required_error: 'Please select a condition',
   }).default('used_good'),

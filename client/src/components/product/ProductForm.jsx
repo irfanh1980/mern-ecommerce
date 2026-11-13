@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { productSchema, CATEGORIES, CONDITIONS, LISTING_TYPES, CURRENCIES, CURRENCY_SYMBOLS } from '../../validators/productSchema.js';
+import { productSchema, CATEGORIES, SUBCATEGORIES, PRODUCT_TYPES, CONDITIONS, LISTING_TYPES, CURRENCIES, CURRENCY_SYMBOLS } from '../../validators/productSchema.js';
 import ImageUpload from '../ui/ImageUpload.jsx';
 
 export default function ProductForm({
@@ -23,6 +23,7 @@ export default function ProductForm({
     reset,
     clearErrors,
     setError: setFieldError,
+    setValue,
     watch,
   } = useForm({
     resolver: zodResolver(productSchema),
@@ -34,6 +35,8 @@ export default function ProductForm({
       currency: product?.currency || 'SEK',
       inventory: product?.inventory ?? '',
       category: product?.category || '',
+      subcategory: product?.subcategory || '',
+      productType: product?.productType || '',
       condition: product?.condition || 'used_good',
       listingType: product?.listingType || 'selling',
       canBeSent: product?.canBeSent || false,
@@ -44,6 +47,14 @@ export default function ProductForm({
   useEffect(() => {
     setImageUrls(product?.images || []);
   }, [product?._id]);
+
+  const selectedCategory = watch('category');
+  const selectedSubcategory = watch('subcategory');
+  const subcategoryOptions = selectedCategory ? SUBCATEGORIES[selectedCategory] || [] : [];
+  const productTypeOptions =
+    selectedCategory && selectedSubcategory
+      ? PRODUCT_TYPES[selectedCategory]?.[selectedSubcategory] || []
+      : [];
 
   const onInvalid = () => {
     setFormError('Please fix the highlighted errors.');
@@ -67,6 +78,8 @@ export default function ProductForm({
         currency: values.currency,
         inventory: values.inventory,
         category: values.category,
+        subcategory: values.subcategory || '',
+        productType: values.productType || '',
         listingType: values.listingType,
         canBeSent: values.canBeSent,
         freeShipping: values.freeShipping,
@@ -226,7 +239,13 @@ export default function ProductForm({
           </label>
           <select
             id="product-category"
-            {...register('category')}
+            name="category"
+            value={selectedCategory}
+            onChange={(e) => {
+              setValue('category', e.target.value, { shouldValidate: true });
+              setValue('subcategory', '');
+              setValue('productType', '');
+            }}
             className={`w-full rounded border px-3 py-2 ${
               errors.category ? 'border-red-500' : 'border-gray-300'
             }`}
@@ -240,6 +259,63 @@ export default function ProductForm({
           </select>
           {errors.category && (
             <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="product-subcategory" className="mb-1 block text-sm font-medium">
+            Subcategory
+          </label>
+          <select
+            id="product-subcategory"
+            name="subcategory"
+            value={selectedSubcategory}
+            disabled={!selectedCategory}
+            onChange={(e) => {
+              setValue('subcategory', e.target.value, { shouldValidate: true });
+              setValue('productType', '');
+            }}
+            className={`w-full rounded border px-3 py-2 disabled:bg-gray-100 disabled:text-gray-400 ${
+              errors.subcategory ? 'border-red-500' : 'border-gray-300'
+            }`}
+          >
+            <option value="">{selectedCategory ? 'Select a subcategory' : 'Select a category first'}</option>
+            {subcategoryOptions.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          {errors.subcategory && (
+            <p className="mt-1 text-sm text-red-600">{errors.subcategory.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="product-type" className="mb-1 block text-sm font-medium">
+            Product type
+          </label>
+          <select
+            id="product-type"
+            name="productType"
+            value={watch('productType')}
+            disabled={!selectedSubcategory}
+            onChange={(e) => {
+              setValue('productType', e.target.value, { shouldValidate: true });
+            }}
+            className={`w-full rounded border px-3 py-2 disabled:bg-gray-100 disabled:text-gray-400 ${
+              errors.productType ? 'border-red-500' : 'border-gray-300'
+            }`}
+          >
+            <option value="">{selectedSubcategory ? 'Select a product type' : 'Select a subcategory first'}</option>
+            {productTypeOptions.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+          {errors.productType && (
+            <p className="mt-1 text-sm text-red-600">{errors.productType.message}</p>
           )}
         </div>
 
