@@ -19,6 +19,7 @@ import Cart from '../pages/Cart.jsx';
 import MyOrders from '../pages/MyOrders.jsx';
 import ChangePassword from '../pages/ChangePassword.jsx';
 import Messaging from '../pages/Messaging.jsx';
+import Favorites from '../pages/Favorites.jsx';
 
 export default function AppRouter() {
   return (
@@ -84,15 +85,23 @@ export default function AppRouter() {
            />
              <Route path="/seller/storefront" element={<SellerStorefront />} />
            <Route path="/verify-email/:token" element={<VerifyEmail />} />
-           <Route
-             path="/messaging"
-             element={
-               <ProtectedRoute>
-                 <Messaging />
-               </ProtectedRoute>
-             }
-           />
-           </Routes>
+<Route
+              path="/messaging"
+              element={
+                <ProtectedRoute>
+                  <Messaging />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/favorites"
+              element={
+                <ProtectedRoute>
+                  <Favorites />
+                </ProtectedRoute>
+              }
+            />
+            </Routes>
       </main>
     </>
   );

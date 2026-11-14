@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { PlusCircle, MessageCircle, User } from 'lucide-react';
+import { PlusCircle, MessageCircle, User, Heart } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useEffect, useState } from 'react';
 
@@ -54,6 +54,11 @@ export default function Navbar() {
           {user && (
             <Link to="/messaging" className="flex items-center gap-1 hover:text-gray-300 hover:underline">
               <MessageCircle size={18} /> Messages
+            </Link>
+          )}
+          {user && (
+            <Link to="/favorites" className={`flex items-center gap-1 hover:text-gray-300 hover:underline ${location.pathname === '/favorites' ? 'text-red-400' : ''}`}>
+              <Heart size={18} /> Favorites
             </Link>
           )}
               {user?.role === 'Buyer' && (

@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { MAIN_CATEGORIES as CATEGORIES } from '../constants/categories.js';
+import FavoriteHeartButton from '../components/favorites/FavoriteHeartButton.jsx';
 
 const CONDITIONS = [
   { value: 'brand_new', label: 'Brand new' },
@@ -423,12 +424,17 @@ export default function Products() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((p) => (
                 <article key={p._id} className="overflow-hidden rounded-lg border bg-white shadow-sm transition hover:shadow-md">
-                  <img
-                    src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
-                    alt={p.title}
-                     className="h-44 w-full object-contain"
-                    loading="lazy"
-                  />
+                  <div className="relative">
+                    <img
+                      src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
+                      alt={p.title}
+                      className="h-44 w-full object-contain"
+                      loading="lazy"
+                    />
+                    <div className="absolute right-2 top-2">
+                      <FavoriteHeartButton product={p} />
+                    </div>
+                  </div>
                   <div className="p-4">
                     {p.seller && (
                       <div className="mb-1 flex items-center gap-1.5 text-xs text-gray-500">

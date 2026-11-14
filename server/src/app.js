@@ -14,6 +14,7 @@ import orderRoutes from './routes/orderRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import conversationRoutes from './routes/conversationRoutes.js';
+import favoriteRoutes from './routes/favoriteRoutes.js';
 import { webhookHandler } from './controllers/paymentController.js';
 
 const app = express();
@@ -83,6 +84,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/popular-searches', popularSearchRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/favorites', favoriteRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin', (await import('./routes/adminAi.js')).default);

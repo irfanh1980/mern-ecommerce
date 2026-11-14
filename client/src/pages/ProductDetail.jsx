@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth.js';
 import ImageGallery from '../components/ui/ImageGallery.jsx';
+import FavoriteHeartButton from '../components/favorites/FavoriteHeartButton.jsx';
 
 export default function ProductDetail() {
   const { api, user } = useAuth();
@@ -106,7 +107,10 @@ export default function ProductDetail() {
               </div>
             )}
             <h1 className="text-3xl font-bold text-gray-900">{product.title}</h1>
-            <p className="text-sm capitalize text-gray-500">{product.category}</p>
+            <div className="mt-1 flex items-center gap-2">
+              <p className="text-sm capitalize text-gray-500">{product.category}</p>
+              <FavoriteHeartButton product={product} size={22} />
+            </div>
           </div>
 
           <div className="pt-4 border-t border-gray-200">
