@@ -51,6 +51,13 @@ export const getProducts = asyncHandler(async (req, res) => {
   if (condition) filter.condition = condition;
   if (listingType) filter.listingType = listingType;
 
+  // Dynamic category attribute filters: query params like `attr.brand=Toyota`
+  Object.entries(req.query).forEach(([key, value]) => {
+    if (key.startsWith('attr.') && value) {
+      filter[`attributes.${key.slice(5)}`] = value;
+    }
+  });
+
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const limitNum = Math.max(1, Math.min(parseInt(limit, 10) || 12, 100));
   const skip = (pageNum - 1) * limitNum;
@@ -77,7 +84,7 @@ export const getProducts = asyncHandler(async (req, res) => {
 
 export const getProductById = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id)
-    .populate('seller', 'name email storeName isVerified')
+    .populate('seller', 'name email storeName isVerified avatar createdAt')
     .populate('user', 'name email storeName isVerified');
   if (!product) {
     return res.status(404).json({ success: false, message: 'Product not found' });

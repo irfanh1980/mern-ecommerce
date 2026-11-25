@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function ImageGallery({ images = [] }) {
   const [current, setCurrent] = useState(0);
@@ -56,13 +56,6 @@ export default function ImageGallery({ images = [] }) {
             </button>
           </>
         )}
-        {/* Favorite FAB */}
-        <button
-          aria-label="Add to favorites"
-          className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow hover:bg-gray-50"
-        >
-          <Heart size={18} className="text-gray-700" />
-        </button>
       </div>
 
       {/* Thumbnail strip */}

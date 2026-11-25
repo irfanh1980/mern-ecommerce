@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import Navbar from '../components/layout/Navbar.jsx';
 import Breadcrumbs from '../components/layout/Breadcrumbs.jsx';
@@ -11,7 +11,7 @@ import Checkout from '../pages/Checkout.jsx';
 import SellerStorefront from '../pages/SellerStorefront.jsx';
 import SellerProfile from '../pages/SellerProfile.jsx';
 import SellerDashboard from '../pages/SellerDashboard.jsx';
-import Dashboard from '../pages/Dashboard.jsx';
+import MyProfile from '../pages/Dashboard.jsx';
 import AddProduct from '../pages/AddProduct.jsx';
 import VerifyEmail from '../pages/VerifyEmail.jsx';
 import AdminDashboard from '../pages/AdminDashboard.jsx';
@@ -19,7 +19,7 @@ import Cart from '../pages/Cart.jsx';
 import MyOrders from '../pages/MyOrders.jsx';
 import ChangePassword from '../pages/ChangePassword.jsx';
 import Messaging from '../pages/Messaging.jsx';
-import Favorites from '../pages/Favorites.jsx';
+
 
 export default function AppRouter() {
   return (
@@ -44,29 +44,29 @@ export default function AppRouter() {
             }
           />
           <Route
-            path="/dashboard"
+            path="/my-profile"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <MyProfile />
               </ProtectedRoute>
             }
           />
 <Route
-              path="/dashboard/add-product"
-              element={
-                <ProtectedRoute roles={['Seller', 'Both', 'Admin']}>
-                  <AddProduct />
-                </ProtectedRoute>
-              }
-            />
+            path="/my-profile/add-product"
+            element={
+              <ProtectedRoute roles={['Seller', 'Both', 'Admin']}>
+                <AddProduct />
+              </ProtectedRoute>
+            }
+          />
 <Route
-              path="/seller/dashboard"
-              element={
-                <ProtectedRoute roles={['Seller', 'Both', 'Admin']}>
-                  <SellerDashboard />
-                </ProtectedRoute>
-              }
-            />
+            path="/seller/my-profile"
+            element={
+              <ProtectedRoute roles={['Seller', 'Both', 'Admin']}>
+                <SellerDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin"
             element={
@@ -95,11 +95,7 @@ export default function AppRouter() {
             />
             <Route
               path="/favorites"
-              element={
-                <ProtectedRoute>
-                  <Favorites />
-                </ProtectedRoute>
-              }
+              element={<Navigate to="/my-profile" replace />}
             />
             </Routes>
       </main>

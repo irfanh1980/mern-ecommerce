@@ -3,7 +3,9 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { MAIN_CATEGORIES as CATEGORIES } from '../constants/categories.js';
+import { getCategoryAttributes } from '../constants/categoryAttributes.js';
 import FavoriteHeartButton from '../components/favorites/FavoriteHeartButton.jsx';
+import SearchableSelect from '../components/ui/SearchableSelect.jsx';
 
 const CONDITIONS = [
   { value: 'brand_new', label: 'Brand new' },
@@ -14,9 +16,100 @@ const CONDITIONS = [
 ];
 
 const LISTING_TYPES = [
-  { value: 'selling', label: 'Selling' },
-  { value: 'given', label: 'Given away' },
+  { value: 'selling', label: 'For sale' },
+  { value: 'wanted', label: 'Wanted / Looking to buy' },
+  { value: 'rent', label: 'For rent' },
+  { value: 'given', label: 'Free / Giveaway' },
 ];
+
+const OTHER = '__other__';
+
+function AttrFilterField({ field, value, dependencyValue, onChange }) {
+  const [custom, setCustom] = useState(false);
+  const inputCls = 'w-full rounded border px-3 py-2 text-sm';
+
+  const options = field.options || [];
+  const attrs = field.dependsOn ? { [field.dependsOn]: dependencyValue } : {};
+  const groups = field.resolveGroups
+    ? field.resolveGroups(attrs)
+    : field.optionsBy
+    ? field.optionsBy[dependencyValue] || field.optionsBy.default || []
+    : field.groups || null;
+  const allOptions = groups ? groups.flatMap((g) => g.options) : options;
+
+  if (field.searchable && field.type === 'select') {
+    return (
+      <SearchableSelect
+        value={value || ''}
+        onChange={onChange}
+        options={options}
+        groups={groups}
+        placeholder={`All ${field.label.toLowerCase()}…`}
+        inputClass={inputCls}
+      />
+    );
+  }
+
+  if (field.type !== 'select') {
+    return (
+      <input
+        type={field.type === 'number' ? 'number' : 'text'}
+        value={value || ''}
+        placeholder={field.placeholder || field.label}
+        onChange={(e) => onChange(e.target.value)}
+        className={inputCls}
+      />
+    );
+  }
+
+  const valueIsCustom = Boolean(value) && value !== OTHER && !allOptions.includes(value);
+  const showCustom = custom || valueIsCustom;
+
+  return (
+    <>
+      <select
+        value={showCustom ? OTHER : value || ''}
+        onChange={(e) => {
+          if (e.target.value === OTHER) {
+            setCustom(true);
+            onChange('');
+          } else {
+            setCustom(false);
+            onChange(e.target.value);
+          }
+        }}
+        className={inputCls}
+      >
+        <option value="">All</option>
+        {groups
+          ? groups.map((g) => (
+              <optgroup key={g.label} label={g.label}>
+                {g.options.map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+              </optgroup>
+            ))
+          : options.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+        <option value={OTHER}>Other (type manually)</option>
+      </select>
+      {showCustom && (
+        <input
+          type="text"
+          value={value && value !== OTHER ? value : ''}
+          placeholder={`Enter ${field.label.toLowerCase()}`}
+          onChange={(e) => onChange(e.target.value)}
+          className={`${inputCls} mt-2`}
+        />
+      )}
+    </>
+  );
+}
 
 export default function Products() {
   const { api, user } = useAuth();
@@ -36,10 +129,13 @@ export default function Products() {
   const [listingType, setListingType] = useState(searchParams.get('listingType') || '');
   const [canBeSent, setCanBeSent] = useState(false);
   const [freeShipping, setFreeShipping] = useState(false);
+  const [attrFilters, setAttrFilters] = useState({});
+  const attrFields = useMemo(() => (category ? getCategoryAttributes(category) : []), [category]);
   const [deliveryOpen, setDeliveryOpen] = useState(false);
   const [priceOpen, setPriceOpen] = useState(false);
   const [conditionOpen, setConditionOpen] = useState(false);
   const [listingTypeOpen, setListingTypeOpen] = useState(false);
+  const [attrOpen, setAttrOpen] = useState(true);
 
   const priceMin = useMemo(() => products.length ? Math.min(...products.map(p => p.price), 0) : 0, [products]);
   const priceMax = useMemo(() => products.length ? Math.max(...products.map(p => p.price), 30000) : 30000, [products]);
@@ -91,6 +187,9 @@ export default function Products() {
         if (listingType) params.listingType = listingType;
         if (canBeSent) params.canBeSent = 'true';
         if (freeShipping) params.freeShipping = 'true';
+        Object.entries(attrFilters).forEach(([k, v]) => {
+          if (v) params[`attr.${k}`] = v;
+        });
         const { data } = await api.get('/api/products', { params });
         if (cancelled) return;
         setProducts(data.data);
@@ -105,7 +204,12 @@ export default function Products() {
     return () => {
       cancelled = true;
     };
-  }, [api, page, category, search, condition, listingType, canBeSent, freeShipping]);
+  }, [api, page, category, search, condition, listingType, canBeSent, freeShipping, attrFilters]);
+
+  // Reset attribute filters when the category changes (fields differ per category)
+  useEffect(() => {
+    setAttrFilters({});
+  }, [category]);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -181,22 +285,18 @@ export default function Products() {
           </div>
           <div className="mb-4">
             <label htmlFor="filter-category" className="mb-1 block text-sm font-medium">Category</label>
-            <select
+            <SearchableSelect
               id="filter-category"
               value={category}
-              onChange={(e) => {
-                setCategory(e.target.value);
+              onChange={(v) => {
+                setCategory(v);
                 setPage(1);
               }}
-              className="w-full rounded border px-3 py-2 text-sm"
-            >
-              <option value="">All</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c.charAt(0).toUpperCase() + c.slice(1)}
-                </option>
-              ))}
-            </select>
+              options={CATEGORIES}
+              allowCustom={false}
+              placeholder="All categories…"
+              inputClass="w-full rounded border px-3 py-2 text-sm"
+            />
           </div>
           <div className="mb-4">
             <button
@@ -266,6 +366,43 @@ export default function Products() {
               </select>
             )}
           </div>
+          {category && attrFields.length > 0 && (
+            <div className="mb-4">
+              <button
+                type="button"
+                onClick={() => setAttrOpen(!attrOpen)}
+                className="flex items-center justify-between w-full mb-2 text-sm font-medium text-gray-900 hover:text-gray-700"
+              >
+                <span>Category details</span>
+                <svg
+                  className={`w-4 h-4 text-gray-500 transition-transform ${attrOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {attrOpen && (
+                <div className="space-y-3">
+                  {attrFields.map((f) => (
+                    <div key={f.key}>
+                      <label className="mb-1 block text-xs font-medium text-gray-600">{f.label}</label>
+                      <AttrFilterField
+                        field={f}
+                        value={attrFilters[f.key]}
+                        dependencyValue={f.dependsOn ? attrFilters[f.dependsOn] : undefined}
+                        onChange={(v) => {
+                          setAttrFilters((prev) => ({ ...prev, [f.key]: v }));
+                          setPage(1);
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           <div className="mb-4">
             <button
               type="button"
@@ -423,7 +560,11 @@ export default function Products() {
           <>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((p) => (
-                <article key={p._id} className="overflow-hidden rounded-lg border bg-white shadow-sm transition hover:shadow-md">
+                <article
+                  key={p._id}
+                  className="overflow-hidden rounded-lg border bg-white shadow-sm transition hover:shadow-md cursor-pointer"
+                  onClick={() => navigate(`/products/${p._id}`)}
+                >
                   <div className="relative">
                     <img
                       src={(p.images?.[0]?.url ?? p.images?.[0]) || 'https://placehold.co/400x300?text=No+Image'}
@@ -461,21 +602,23 @@ export default function Products() {
                       <span className="text-xs text-gray-500">Stock: {p.inventory}</span>
                     </div>
                      <button
-                       type="button"
-                       onClick={() => {
-                         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-                         cart.push(p);
-                         localStorage.setItem('cart', JSON.stringify(cart));
-                         alert('Added to cart');
-                       }}
-                       className="mt-3 w-full rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                     >
-                       Add to Cart
-                     </button>
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                        cart.push(p);
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        alert('Added to cart');
+                      }}
+                      className="mt-3 w-full rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    >
+                      Add to Cart
+                    </button>
                     {user && p.seller?._id !== user._id && (
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           navigate('/messaging');
                           api.post('/api/conversations', {
                             listingId: p._id,

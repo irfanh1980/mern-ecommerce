@@ -94,8 +94,13 @@ const productSchema = new mongoose.Schema(
     },
     listingType: {
       type: String,
-      enum: ['selling', 'given'],
+      enum: ['selling', 'wanted', 'rent', 'given'],
       default: 'selling',
+    },
+    attributes: {
+      type: Map,
+      of: String,
+      default: () => ({}),
     },
   },
   { timestamps: true }

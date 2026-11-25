@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { getCategoryAttributeKeys } from '../constants/categoryAttributes.js';
 
 const categoryEnum = z.string().min(1);
 
-export const productBodySchema = z.object({
+export const productBodyObject = z.object({
   title: z
     .string()
     .trim()
@@ -15,7 +16,7 @@ export const productBodySchema = z.object({
       z
         .number({ required_error: 'Price is required', invalid_type_error: 'Enter a valid price' })
         .int('Price must be a whole number')
-        .positive('Price must be greater than 0')
+        .min(0, 'Price cannot be negative')
     ),
   currency: z.enum(['SEK', 'USD', 'EUR']).default('SEK'),
   inventory: z
@@ -34,7 +35,8 @@ export const productBodySchema = z.object({
     .default('used_good'),
   canBeSent: z.boolean().default(false),
   freeShipping: z.boolean().default(false),
-  listingType: z.enum(['selling', 'given']).default('selling'),
+  listingType: z.enum(['selling', 'wanted', 'rent', 'given']).default('selling'),
+  attributes: z.record(z.string(), z.string()).optional().default({}),
   images: z
     .array(
       z.object({
@@ -45,4 +47,45 @@ export const productBodySchema = z.object({
     .min(1, 'At least one product image is required'),
 });
 
-export const productUpdateSchema = productBodySchema.partial();
+const refinePrice = (data, ctx) => {
+  if (data.price === undefined) return;
+  if (data.listingType === 'given') {
+    if (data.price !== 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['price'],
+        message: 'Free / Giveaway items must have a price of 0',
+      });
+    }
+  } else if (data.price <= 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['price'],
+      message: 'Price must be greater than 0',
+    });
+  }
+};
+
+const refineAttributes = (data, ctx) => {
+  if (!data.attributes || !data.category) return;
+  const allowed = new Set(getCategoryAttributeKeys(data.category));
+  Object.keys(data.attributes).forEach((key) => {
+    if (!allowed.has(key)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['attributes', key],
+        message: `Attribute "${key}" is not valid for this category`,
+      });
+    }
+  });
+};
+
+export const productBodySchema = productBodyObject.superRefine((data, ctx) => {
+  refinePrice(data, ctx);
+  refineAttributes(data, ctx);
+});
+
+export const productUpdateSchema = productBodyObject.partial().superRefine((data, ctx) => {
+  refinePrice(data, ctx);
+  refineAttributes(data, ctx);
+});

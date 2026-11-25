@@ -96,10 +96,10 @@ export default function Register() {
         </div>
         <button
           type="button"
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/my-profile')}
           className="mt-5 w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
-          Go to dashboard
+          Go to my profile
         </button>
       </div>
     );

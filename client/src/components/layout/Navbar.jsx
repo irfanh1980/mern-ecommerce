@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { PlusCircle, MessageCircle, User, Heart } from 'lucide-react';
+import { PlusCircle, MessageCircle, User } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useEffect, useState } from 'react';
 
@@ -43,11 +43,11 @@ export default function Navbar() {
           {location.pathname !== '/login' && (
             <>
               {user?.role === 'Buyer' ? (
-                <button onClick={() => { alert('Please change your account role to Seller or Both in your profile to post ads.'); navigate('/dashboard'); }} className="flex items-center gap-1 hover:text-gray-300 hover:underline">
+                <button onClick={() => { alert('Please change your account role to Seller or Both in your profile to post ads.'); navigate('/my-profile'); }} className="flex items-center gap-1 hover:text-gray-300 hover:underline">
                   <PlusCircle size={18} /> New ad
                 </button>
               ) : (
-                <Link to="/dashboard/add-product" className="flex items-center gap-1 hover:text-gray-300 hover:underline">
+                <Link to="/my-profile/add-product" className="flex items-center gap-1 hover:text-gray-300 hover:underline">
                   <PlusCircle size={18} /> New ad
                 </Link>
               )}
@@ -57,11 +57,6 @@ export default function Navbar() {
             </Link>
           )}
           {user && (
-            <Link to="/favorites" className={`flex items-center gap-1 hover:text-gray-300 hover:underline ${location.pathname === '/favorites' ? 'text-red-400' : ''}`}>
-              <Heart size={18} /> Favorites
-            </Link>
-          )}
-              {user?.role === 'Buyer' && (
                 <Link to="/cart" className={`hover:text-gray-300 hover:underline ${location.pathname === '/cart' ? 'text-blue-400' : ''}`}>Cart</Link>
               )}
             </>
@@ -71,7 +66,7 @@ export default function Navbar() {
               )}
               {user && (
             <>
-                <Link to="/dashboard" className={`hover:text-gray-300 hover:underline ${location.pathname === '/dashboard' ? 'text-blue-400' : ''}`}>Dashboard</Link>
+                <Link to="/my-profile" className={`hover:text-gray-300 hover:underline ${location.pathname === '/my-profile' ? 'text-blue-400' : ''}`}>My profile</Link>
               <button
                 onClick={handleLogout}
                 className="rounded bg-red-600 px-3 py-1 text-sm hover:bg-red-700"

@@ -77,16 +77,17 @@ export default function ChangePassword() {
   );
 
   const goBack = () => {
-    const referrer = document.referrer || window.location.origin + '/dashboard';
+    const referrer = document.referrer || window.location.origin + '/my-profile';
     try {
       const url = new URL(referrer);
       if (url.origin === window.location.origin) {
         navigate(url.pathname + url.search + url.hash);
+        navigate('/my-profile');
       } else {
-        navigate('/dashboard');
+        navigate('/my-profile');
       }
     } catch {
-      navigate('/dashboard');
+      navigate('/my-profile');
     }
   };
 

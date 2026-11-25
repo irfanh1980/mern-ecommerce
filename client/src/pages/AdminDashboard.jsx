@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
 
 const TABS = [
-  { key: 'stats', label: 'Dashboard' },
+  { key: 'stats', label: 'My profile' },
   { key: 'users', label: 'Users' },
   { key: 'products', label: 'Products' },
   { key: 'orders', label: 'Orders' },
@@ -24,7 +24,7 @@ export default function AdminDashboard() {
   const [updateError, setUpdateError] = useState('');
   const [updatingUser, setUpdatingUser] = useState(false);
   const [editUser, setEditUser] = useState(null);
-  const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', street: '', apartment: '', city: '', state: '', zipCode: '', country: '', role: '', isVerified: false });
+  const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', street: '', apartment: '', city: '', state: '', zipCode: '', country: '', dateOfBirth: '', role: '', isVerified: false });
 
   // Products
   const [products, setProducts] = useState([]);
@@ -106,6 +106,7 @@ export default function AdminDashboard() {
       state: u.address?.state || '',
       zipCode: u.address?.zipCode || '',
       country: u.address?.country || '',
+      dateOfBirth: u.dateOfBirth ? u.dateOfBirth.split('T')[0] : '',
       role: u.role,
       isVerified: !!u.isVerified,
       password: '',
@@ -134,6 +135,7 @@ export default function AdminDashboard() {
           zipCode: editForm.zipCode,
           country: editForm.country,
         },
+        dateOfBirth: editForm.dateOfBirth || null,
       };
       if (editForm.password) payload.password = editForm.password;
       const { data } = await api.put(`/api/admin/users/${editUser._id}`, payload);
@@ -212,7 +214,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Dashboard Stats Tab */}
+      {/* My profile Stats Tab */}
       {tab === 'stats' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard title="Total Users" value={stats.totalUsers} icon="👥" color="bg-blue-500" />
@@ -413,6 +415,16 @@ export default function AdminDashboard() {
                     id="edit-user-country"
                     value={editForm.country}
                     onChange={(e) => setEditForm({ ...editForm, country: e.target.value })}
+                    className="w-full rounded border px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="edit-user-date-of-birth" className="block text-sm font-medium mb-1">Date of birth</label>
+                  <input
+                    id="edit-user-date-of-birth"
+                    type="date"
+                    value={editForm.dateOfBirth}
+                    onChange={(e) => setEditForm({ ...editForm, dateOfBirth: e.target.value })}
                     className="w-full rounded border px-3 py-2"
                   />
                 </div>

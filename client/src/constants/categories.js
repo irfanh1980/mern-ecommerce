@@ -156,6 +156,7 @@ export const SUBCATEGORIES = {
     "Women's clothing",
     'Glasses and sunglasses',
     "Men's clothing",
+    "Children's clothing",
     'Skin, hair and body care',
     'Watches and clocks',
     'Cosmetic',
@@ -527,6 +528,15 @@ export const PRODUCT_TYPES = {
       'Shirts',
       'Pants & Jeans',
       'Hoodies',
+    ],
+    "Children's clothing": [
+      'Baby grows & bodysuits',
+      'Tops & T-shirts',
+      'Bottoms & trousers',
+      'Dresses & skirts',
+      'Outerwear & jackets',
+      'Sleepwear',
+      'School uniforms',
     ],
     'Skin, hair and body care': [
       'Skincare Sets',

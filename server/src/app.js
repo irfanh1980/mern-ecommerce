@@ -86,6 +86,7 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/favorites', favoriteRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin', (await import('./routes/adminAi.js')).default);
 app.use('/api/users', (await import('./routes/userRoutes.js')).default);

@@ -26,8 +26,10 @@ export const CONDITIONS = [
 ];
 
 export const LISTING_TYPES = [
-  { value: 'selling', label: 'Selling' },
-  { value: 'given', label: 'Given away' },
+  { value: 'selling', label: 'For sale' },
+  { value: 'wanted', label: 'Looking to buy' },
+  { value: 'rent', label: 'For rent' },
+  { value: 'given', label: 'Free / Giveaway' },
 ];
 
 export const productSchema = z.object({
@@ -47,11 +49,10 @@ export const productSchema = z.object({
       (val) => (val === '' || val === undefined ? undefined : Number(val)),
       z
         .number({
-          required_error: 'Price is required',
-          invalid_type_error: 'Enter a valid price',
+          error: (iss) => (iss.input === undefined ? 'Price is required' : 'Enter a valid price'),
         })
         .int('Price must be a whole number')
-        .positive('Price must be greater than 0')
+        .min(0, 'Price cannot be negative')
     ),
   currency: z.enum(['SEK', 'USD', 'EUR']).default('SEK'),
   inventory: z
@@ -65,15 +66,34 @@ export const productSchema = z.object({
         .int('Inventory must be a whole number')
         .min(0, 'Inventory cannot be negative')
     ),
-  category: z.enum(CATEGORIES, {
-    required_error: 'Please select a category',
-  }),
+  category: z
+    .string({ required_error: 'Please select a category' })
+    .min(1, 'Please select a category')
+    .refine((v) => CATEGORIES.includes(v), 'Please select a valid category'),
   subcategory: z.string().optional().default(''),
   productType: z.string().optional().default(''),
-  condition: z.enum(CONDITIONS.map(c => c.value), {
-    required_error: 'Please select a condition',
-  }).default('used_good'),
+  condition: z
+    .string({ required_error: 'Please select a condition' })
+    .min(1, 'Please select a condition')
+    .refine((v) => CONDITIONS.map((c) => c.value).includes(v), 'Please select a valid condition'),
   canBeSent: z.boolean().optional().default(false),
   freeShipping: z.boolean().optional().default(false),
   listingType: z.enum(LISTING_TYPES.map(t => t.value)).default('selling'),
+  attributes: z.record(z.string(), z.string()).optional().default({}),
+}).superRefine((data, ctx) => {
+  if (data.listingType === 'given') {
+    if (data.price !== 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['price'],
+        message: 'Free / Giveaway items must have a price of 0',
+      });
+    }
+  } else if (data.price <= 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['price'],
+      message: 'Price must be greater than 0',
+    });
+  }
 });

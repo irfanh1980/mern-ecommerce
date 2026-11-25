@@ -1,5 +1,5 @@
-import Dashboard from './Dashboard.jsx';
+import MyProfile from './Dashboard.jsx';
 
 export default function SellerDashboard() {
-  return <Dashboard />;
+  return <MyProfile />;
 }

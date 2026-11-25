@@ -3,6 +3,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productSchema, CATEGORIES, SUBCATEGORIES, PRODUCT_TYPES, CONDITIONS, LISTING_TYPES, CURRENCIES, CURRENCY_SYMBOLS } from '../../validators/productSchema.js';
 import ImageUpload from '../ui/ImageUpload.jsx';
+import CategoryAttributesFields from './CategoryAttributesFields.jsx';
+import SearchableSelect from '../ui/SearchableSelect.jsx';
+import { filterAttributesForCategory } from '../../constants/categoryAttributes.js';
 
 export default function ProductForm({
   product = null,
@@ -15,6 +18,7 @@ export default function ProductForm({
   const [imageSession, setImageSession] = useState(0);
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [attributes, setAttributes] = useState(product?.attributes || {});
 
   const {
     register,
@@ -37,7 +41,7 @@ export default function ProductForm({
       category: product?.category || '',
       subcategory: product?.subcategory || '',
       productType: product?.productType || '',
-      condition: product?.condition || 'used_good',
+      condition: product?.condition || '',
       listingType: product?.listingType || 'selling',
       canBeSent: product?.canBeSent || false,
       freeShipping: product?.freeShipping || false,
@@ -46,10 +50,23 @@ export default function ProductForm({
 
   useEffect(() => {
     setImageUrls(product?.images || []);
+    setAttributes(product?.attributes || {});
   }, [product?._id]);
 
   const selectedCategory = watch('category');
   const selectedSubcategory = watch('subcategory');
+  const listingType = watch('listingType');
+  const isFree = listingType === 'given';
+
+  useEffect(() => {
+    if (listingType === 'given') {
+      setValue('price', 0);
+    } else {
+      const p = watch('price');
+      if (p === 0 || p === '0') setValue('price', '');
+    }
+  }, [listingType, setValue]);
+
   const subcategoryOptions = selectedCategory ? SUBCATEGORIES[selectedCategory] || [] : [];
   const productTypeOptions =
     selectedCategory && selectedSubcategory
@@ -74,7 +91,7 @@ export default function ProductForm({
       const result = await onSave({
         title: values.title.trim(),
         description: values.description.trim(),
-        price: values.price,
+        price: values.listingType === 'given' ? 0 : values.price,
         currency: values.currency,
         inventory: values.inventory,
         category: values.category,
@@ -83,6 +100,7 @@ export default function ProductForm({
         listingType: values.listingType,
         canBeSent: values.canBeSent,
         freeShipping: values.freeShipping,
+        attributes: filterAttributesForCategory(values.category, attributes),
         images: imageUrls,
       });
 
@@ -101,6 +119,7 @@ export default function ProductForm({
       if (!isEdit) {
         reset({ title: '', description: '', price: '', inventory: '', category: '' });
         setImageUrls([]);
+        setAttributes({});
         setImageSession((k) => k + 1);
       }
     } finally {
@@ -122,15 +141,25 @@ export default function ProductForm({
       )}
 
       <div>
-        <p className="mb-2 font-bold text-gray-900">Listing Type</p>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2">
-            <input type="radio" name="listingType" value="selling" defaultChecked /> selling
-          </label>
-          <label className="flex items-center gap-2">
-            <input type="radio" name="listingType" value="given" className="accent-blue-600" /> Given away
-          </label>
-        </div>
+        <label htmlFor="product-listing-type" className="mb-1 block text-sm font-medium">
+          Listing type
+        </label>
+        <select
+          id="product-listing-type"
+          {...register('listingType')}
+          className={`w-full rounded border px-3 py-2 ${
+            errors.listingType ? 'border-red-500' : 'border-gray-300'
+          }`}
+        >
+          {LISTING_TYPES.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+        {errors.listingType && (
+          <p className="mt-1 text-sm text-red-600">{errors.listingType.message}</p>
+        )}
       </div>
 
       <ImageUpload
@@ -178,25 +207,31 @@ export default function ProductForm({
 
         <div>
           <div className="mb-1 block text-sm font-medium">Price</div>
-          <div className="relative w-full">
-            <span
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium"
-            >
-              {CURRENCY_SYMBOLS[watch('currency', 'SEK')] || '$'}
-            </span>
-            <input
-              id="product-price"
-              {...register('price')}
-              type="number"
-              step="1"
-              min="0"
-              placeholder="0"
-              className={`w-full rounded border pl-10 pr-3 py-2 ${
-                errors.price ? 'border-red-500' : 'border-gray-300'
-              }`}
-            />
-            {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>}
-          </div>
+          {isFree ? (
+            <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500">
+              Free — price set to 0 SEK
+            </div>
+          ) : (
+            <div className="relative w-full">
+              <span
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium"
+              >
+                {CURRENCY_SYMBOLS[watch('currency', 'SEK')] || '$'}
+              </span>
+              <input
+                id="product-price"
+                {...register('price')}
+                type="number"
+                step="1"
+                min="0"
+                placeholder="0"
+                className={`w-full rounded border pl-10 pr-3 py-2 ${
+                  errors.price ? 'border-red-500' : 'border-gray-300'
+                }`}
+              />
+              {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>}
+            </div>
+          )}
           <div className="mt-2">
             <label htmlFor="product-currency" className="mb-1 block text-sm font-medium">
               Currency
@@ -223,6 +258,8 @@ export default function ProductForm({
             id="product-inventory"
             {...register('inventory')}
             type="number"
+            min="0"
+            step="1"
             placeholder="0"
             className={`w-full rounded border px-3 py-2 ${
               errors.inventory ? 'border-red-500' : 'border-gray-300'
@@ -233,30 +270,44 @@ export default function ProductForm({
           )}
         </div>
 
+        <div>
+          <label htmlFor="product-gender" className="mb-1 block text-sm font-medium">
+            Sex/Gender
+          </label>
+          <select
+            id="product-gender"
+            value={attributes.gender || ''}
+            onChange={(e) => setAttributes((prev) => ({ ...prev, gender: e.target.value }))}
+            className="w-full rounded border border-gray-300 px-3 py-2"
+          >
+            <option value="">Select gender</option>
+            <option value="Men">Men</option>
+            <option value="Women">Women</option>
+            <option value="Unisex">Unisex</option>
+            <option value="Kids">Kids</option>
+          </select>
+        </div>
+
         <div className="md:col-span-2">
           <label htmlFor="product-category" className="mb-1 block text-sm font-medium">
             Category
           </label>
-          <select
+          <SearchableSelect
             id="product-category"
-            name="category"
             value={selectedCategory}
-            onChange={(e) => {
-              setValue('category', e.target.value, { shouldValidate: true });
+            onChange={(v) => {
+              setValue('category', v);
               setValue('subcategory', '');
               setValue('productType', '');
+              setAttributes({});
             }}
-            className={`w-full rounded border px-3 py-2 ${
+            options={CATEGORIES}
+            allowCustom={false}
+            placeholder="Search category…"
+            inputClass={`w-full rounded border px-3 py-2 ${
               errors.category ? 'border-red-500' : 'border-gray-300'
             }`}
-          >
-            <option value="">Select a category</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c.charAt(0).toUpperCase() + c.slice(1)}
-              </option>
-            ))}
-          </select>
+          />
           {errors.category && (
             <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
           )}
@@ -266,26 +317,30 @@ export default function ProductForm({
           <label htmlFor="product-subcategory" className="mb-1 block text-sm font-medium">
             Subcategory
           </label>
-          <select
-            id="product-subcategory"
-            name="subcategory"
-            value={selectedSubcategory}
-            disabled={!selectedCategory}
-            onChange={(e) => {
-              setValue('subcategory', e.target.value, { shouldValidate: true });
-              setValue('productType', '');
-            }}
-            className={`w-full rounded border px-3 py-2 disabled:bg-gray-100 disabled:text-gray-400 ${
-              errors.subcategory ? 'border-red-500' : 'border-gray-300'
-            }`}
-          >
-            <option value="">{selectedCategory ? 'Select a subcategory' : 'Select a category first'}</option>
-            {subcategoryOptions.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
+          {selectedCategory ? (
+            <SearchableSelect
+              id="product-subcategory"
+              value={selectedSubcategory}
+              onChange={(v) => {
+                setValue('subcategory', v, { shouldValidate: true });
+                setValue('productType', '');
+              }}
+              options={subcategoryOptions}
+              allowCustom={false}
+              placeholder="Search subcategory…"
+              inputClass={`w-full rounded border px-3 py-2 ${
+                errors.subcategory ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+          ) : (
+            <select
+              id="product-subcategory"
+              disabled
+              className="w-full rounded border border-gray-300 bg-gray-100 px-3 py-2 text-gray-400"
+            >
+              <option>Select a category first</option>
+            </select>
+          )}
           {errors.subcategory && (
             <p className="mt-1 text-sm text-red-600">{errors.subcategory.message}</p>
           )}
@@ -295,25 +350,27 @@ export default function ProductForm({
           <label htmlFor="product-type" className="mb-1 block text-sm font-medium">
             Product type
           </label>
-          <select
-            id="product-type"
-            name="productType"
-            value={watch('productType')}
-            disabled={!selectedSubcategory}
-            onChange={(e) => {
-              setValue('productType', e.target.value, { shouldValidate: true });
-            }}
-            className={`w-full rounded border px-3 py-2 disabled:bg-gray-100 disabled:text-gray-400 ${
-              errors.productType ? 'border-red-500' : 'border-gray-300'
-            }`}
-          >
-            <option value="">{selectedSubcategory ? 'Select a product type' : 'Select a subcategory first'}</option>
-            {productTypeOptions.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
+          {selectedSubcategory ? (
+            <SearchableSelect
+              id="product-type"
+              value={watch('productType')}
+              onChange={(v) => setValue('productType', v, { shouldValidate: true })}
+              options={productTypeOptions}
+              allowCustom={false}
+              placeholder="Search product type…"
+              inputClass={`w-full rounded border px-3 py-2 ${
+                errors.productType ? 'border-red-500' : 'border-gray-300'
+              }`}
+            />
+          ) : (
+            <select
+              id="product-type"
+              disabled
+              className="w-full rounded border border-gray-300 bg-gray-100 px-3 py-2 text-gray-400"
+            >
+              <option>Select a subcategory first</option>
+            </select>
+          )}
           {errors.productType && (
             <p className="mt-1 text-sm text-red-600">{errors.productType.message}</p>
           )}
@@ -330,6 +387,7 @@ export default function ProductForm({
               errors.condition ? 'border-red-500' : 'border-gray-300'
             }`}
           >
+            <option value="">Select condition</option>
             {CONDITIONS.map((c) => (
               <option key={c.value} value={c.value}>
                 {c.label}
@@ -339,6 +397,14 @@ export default function ProductForm({
           {errors.condition && (
             <p className="mt-1 text-sm text-red-600">{errors.condition.message}</p>
           )}
+        </div>
+
+        <div className="md:col-span-2">
+          <CategoryAttributesFields
+            category={selectedCategory}
+            attributes={attributes}
+            onChange={setAttributes}
+          />
         </div>
 
         <div className="md:col-span-2">

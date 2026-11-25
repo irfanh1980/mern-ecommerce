@@ -27,6 +27,8 @@ export const profileUpdateSchema = z
       .enum(['Buyer', 'Seller', 'Both', 'Admin'])
       .optional(),
     address: addressSchema.optional(),
+    dateOfBirth: z.string().date().optional().or(z.literal(null)),
+    bio: z.string().trim().max(500, 'Bio cannot exceed 500 characters').optional().default(''),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: 'No profile fields provided',

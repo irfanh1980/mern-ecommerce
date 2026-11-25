@@ -178,11 +178,13 @@ export const updateProfile = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const { name, phone, avatar, address, role, bio } = req.body;
+    const { name, phone, avatar, address, role, bio, dateOfBirth } = req.body;
 
     if (name !== undefined) user.name = name;
     if (phone !== undefined) user.phone = phone;
+    if (avatar !== undefined) user.avatar = avatar;
     if (bio !== undefined) user.bio = bio;
+    if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
     if (role !== undefined) {
       if (role === 'Admin' && req.user.role !== 'Admin') {
         return res.status(403).json({ success: false, message: 'Not allowed to set Admin role' });

@@ -80,6 +80,9 @@ const userSchema = new mongoose.Schema(
     emailVerifiedAt: {
       type: Date,
     },
+    dateOfBirth: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

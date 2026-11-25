@@ -65,10 +65,10 @@ export default function VerifyEmail() {
           <h2 className="text-lg font-semibold text-gray-900">Email verified</h2>
           <p className="mt-1 text-sm text-gray-600">{message}</p>
           <Link
-            to="/dashboard"
+            to="/my-profile"
             className="mt-5 inline-block rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
-            Go to dashboard
+            Go to my profile
           </Link>
         </>
       )}
@@ -81,13 +81,13 @@ export default function VerifyEmail() {
           <h2 className="text-lg font-semibold text-gray-900">Verification failed</h2>
           <p className="mt-1 text-sm text-gray-600">{message}</p>
           <p className="mt-3 text-xs text-gray-500">
-            You can request a new verification link from your dashboard.
+            You can request a new verification link from your profile page.
           </p>
           <Link
-            to="/dashboard"
+            to="/my-profile"
             className="mt-5 inline-block rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
-            Back to dashboard
+            Back to my profile
           </Link>
         </>
       )}

@@ -126,18 +126,18 @@ export default function Home() {
       </div>
 
       <div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">All Products</h2>
-          <div className="flex gap-2">
-            <select value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)} className="rounded border px-3 py-2 text-sm">
-              <option value="">All categories</option>
-              {MAIN_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <button onClick={() => navigate(searchCategory ? `/products?category=${encodeURIComponent(searchCategory)}` : '/products')} className="rounded bg-blue-600 px-4 py-2 text-sm text-white">Search</button>
-          </div>
-          {user && user.role !== 'Buyer' && (
+<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 w-full">
+            <h2 className="text-2xl font-bold text-gray-900">All Products</h2>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <select value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)} className="w-full sm:w-auto rounded border px-3 py-2 text-sm flex-1 min-w-0">
+                <option value="">All categories</option>
+                {MAIN_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <button onClick={() => navigate(searchCategory ? `/products?category=${encodeURIComponent(searchCategory)}` : '/products')} className="w-full sm:w-auto rounded bg-blue-600 px-4 py-2 text-sm text-white whitespace-nowrap">Search</button>
+            </div>
+            {user && user.role !== 'Buyer' && (
             <Link
-              to="/dashboard/add-product"
+                to="/my-profile/add-product"
               className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-colors"
             >
               <span>+</span> Add product
@@ -165,7 +165,7 @@ export default function Home() {
             <p className="text-sm text-gray-500 mb-4">No products yet.</p>
             {user && user.role !== 'Buyer' && (
               <Link
-                to="/dashboard/add-product"
+              to="/my-profile/add-product"
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
               >
                 Add your first product

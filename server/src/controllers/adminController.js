@@ -61,7 +61,7 @@ export const updateUser = asyncHandler(async (req, res) => {
     return res.status(404).json({ success: false, message: 'User not found' });
   }
 
-  const allowedUpdates = ['name', 'email', 'phone', 'role', 'address', 'isVerified', 'password'];
+  const allowedUpdates = ['name', 'email', 'phone', 'role', 'address', 'isVerified', 'password', 'dateOfBirth'];
   Object.keys(req.body).forEach((key) => {
     if (allowedUpdates.includes(key)) {
       if (key === 'phone' && req.body[key] === '') {

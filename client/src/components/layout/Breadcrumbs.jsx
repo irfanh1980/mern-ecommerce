@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 const LABELS = {
   products: 'Products',
-  dashboard: 'Dashboard',
+  dashboard: 'My profile',
   messaging: 'Messages',
   login: 'Login',
   register: 'Register',
